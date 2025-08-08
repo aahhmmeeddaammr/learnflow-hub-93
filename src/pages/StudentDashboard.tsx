@@ -1,4 +1,8 @@
+import { Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import StudentGrades from "./student/StudentGrades";
+import StudentAttendance from "./student/StudentAttendance";
+import StudentAnnouncements from "./student/StudentAnnouncements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

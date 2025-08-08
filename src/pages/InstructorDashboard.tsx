@@ -1,4 +1,8 @@
+import { Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
+import InstructorGroups from "./instructor/InstructorGroups";
+import InstructorMarks from "./instructor/InstructorMarks";
+import InstructorTickets from "./instructor/InstructorTickets";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -254,6 +258,18 @@ export default function InstructorDashboard() {
           </Button>
         </div>
       </div>
+  );
+}
+
+export default function InstructorDashboard() {
+  return (
+    <DashboardLayout role="instructor">
+      <Routes>
+        <Route index element={<InstructorOverview />} />
+        <Route path="groups" element={<InstructorGroups />} />
+        <Route path="marks" element={<InstructorMarks />} />
+        <Route path="tickets" element={<InstructorTickets />} />
+      </Routes>
     </DashboardLayout>
   );
 }
