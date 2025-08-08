@@ -98,11 +98,11 @@ export function AppSidebar({ role }: AppSidebarProps) {
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar className="border-r bg-white/50 backdrop-blur-sm">
+    <Sidebar className="border-r bg-sidebar border-sidebar-border">
       <SidebarContent className="py-4">
         {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider">
             {!isCollapsed && 'Main Navigation'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -115,8 +115,8 @@ export function AppSidebar({ role }: AppSidebarProps) {
                       className={({ isActive: linkActive }) =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                           isActive(item.url) || linkActive
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                            ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
                         }`
                       }
                     >
@@ -132,7 +132,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
 
         {/* Common Items */}
         <SidebarGroup className="mt-8">
-          <SidebarGroupLabel className="px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          <SidebarGroupLabel className="px-4 text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider">
             {!isCollapsed && 'General'}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -145,8 +145,8 @@ export function AppSidebar({ role }: AppSidebarProps) {
                       className={({ isActive: linkActive }) =>
                         `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                           linkActive
-                            ? 'bg-primary text-primary-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                            ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
                         }`
                       }
                     >

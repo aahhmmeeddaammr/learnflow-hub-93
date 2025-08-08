@@ -17,7 +17,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         
         <div className="flex-1 flex flex-col">
           {/* Top Navigation */}
-          <header className="h-16 border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40 flex items-center px-6 gap-4">
+          <header className="h-16 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 flex items-center px-6 gap-4 border-border">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             
             <div className="flex-1 flex items-center justify-between">
