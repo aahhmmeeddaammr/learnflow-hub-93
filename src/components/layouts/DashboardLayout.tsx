@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/navigation/AppSidebar";
 import { UserRole } from "@/types/auth";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
               </div>
               
               <div className="flex items-center gap-4">
+                <ThemeToggle />
                 <div className={`role-badge role-${role}`}>
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </div>
