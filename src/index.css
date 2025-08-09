@@ -48,25 +48,63 @@
     --input: 210 15% 92%;
     --ring: 215 100% 40%;
 
-    /* Gradients */
+    /* Gradients - Professional ERP System */
     --gradient-primary: linear-gradient(135deg, hsl(215 100% 40%), hsl(215 100% 60%));
     --gradient-secondary: linear-gradient(135deg, hsl(215 100% 95%), hsl(215 100% 85%));
     --gradient-hero: linear-gradient(135deg, hsl(215 100% 35%), hsl(215 100% 65%));
+    --gradient-success: linear-gradient(135deg, hsl(145 65% 40%), hsl(145 65% 55%));
+    --gradient-warning: linear-gradient(135deg, hsl(40 95% 50%), hsl(40 95% 65%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 15% 98%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(0 0% 98%), hsl(210 15% 96%));
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(215 25% 75% / 0.05);
+    /* Shadows - Layered depth system */
+    --shadow-xs: 0 1px 2px 0 hsl(215 25% 75% / 0.03);
+    --shadow-sm: 0 1px 3px 0 hsl(215 25% 75% / 0.1), 0 1px 2px 0 hsl(215 25% 75% / 0.06);
     --shadow-md: 0 4px 6px -1px hsl(215 25% 75% / 0.1), 0 2px 4px -1px hsl(215 25% 75% / 0.06);
     --shadow-lg: 0 10px 15px -3px hsl(215 25% 75% / 0.1), 0 4px 6px -2px hsl(215 25% 75% / 0.05);
+    --shadow-xl: 0 20px 25px -5px hsl(215 25% 75% / 0.1), 0 10px 10px -5px hsl(215 25% 75% / 0.04);
+    --shadow-2xl: 0 25px 50px -12px hsl(215 25% 75% / 0.25);
     --shadow-primary: 0 10px 25px -5px hsl(215 100% 40% / 0.25);
+    --shadow-success: 0 10px 25px -5px hsl(145 65% 45% / 0.25);
+    --shadow-warning: 0 10px 25px -5px hsl(40 95% 55% / 0.25);
+    --shadow-card-hover: 0 10px 30px -10px hsl(215 25% 75% / 0.15);
+    --shadow-floating: 0 15px 35px 0 hsl(215 25% 75% / 0.1), 0 5px 15px 0 hsl(215 25% 75% / 0.07);
 
-    /* Spacing and Layout */
+    /* Spacing and Layout - Professional grid system */
     --radius: 0.75rem;
+    --radius-xs: 0.25rem;
     --radius-sm: 0.5rem;
     --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-2xl: 2rem;
+    --radius-full: 9999px;
 
-    /* Transitions */
+    /* Typography Scale */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+
+    /* Transitions - Smooth professional interactions */
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Z-index layers */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 0 0% 0%;
@@ -146,58 +184,217 @@
 }
 
 @layer components {
-  /* Custom components using design system */
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
+  /* Professional Gradient System */
+  .gradient-primary { background: var(--gradient-primary); }
+  .gradient-secondary { background: var(--gradient-secondary); }
+  .gradient-hero { background: var(--gradient-hero); }
+  .gradient-success { background: var(--gradient-success); }
+  .gradient-warning { background: var(--gradient-warning); }
+  .gradient-card { background: var(--gradient-card); }
+  .gradient-sidebar { background: var(--gradient-sidebar); }
 
-  .gradient-secondary {
-    background: var(--gradient-secondary);
-  }
+  /* Professional Shadow System */
+  .shadow-xs { box-shadow: var(--shadow-xs); }
+  .shadow-primary { box-shadow: var(--shadow-primary); }
+  .shadow-success { box-shadow: var(--shadow-success); }
+  .shadow-warning { box-shadow: var(--shadow-warning); }
+  .shadow-card-hover { box-shadow: var(--shadow-card-hover); }
+  .shadow-floating { box-shadow: var(--shadow-floating); }
 
-  .gradient-hero {
-    background: var(--gradient-hero);
-  }
+  /* Professional Transition System */
+  .transition-fast { transition: var(--transition-fast); }
+  .transition-smooth { transition: var(--transition-smooth); }
+  .transition-spring { transition: var(--transition-spring); }
+  .transition-bounce { transition: var(--transition-bounce); }
+  .transition-slow { transition: var(--transition-slow); }
 
-  .shadow-primary {
-    box-shadow: var(--shadow-primary);
-  }
-
-  .transition-smooth {
-    transition: var(--transition-smooth);
-  }
-
-  .transition-spring {
-    transition: var(--transition-spring);
-  }
-
-  /* Dashboard Cards */
+  /* Professional Dashboard Components */
   .dashboard-card {
-    @apply bg-card border border-border rounded-lg p-6 shadow-md hover:shadow-lg transition-smooth;
+    @apply bg-card border border-border rounded-lg p-6 shadow-md 
+           hover:shadow-card-hover transition-smooth transform
+           hover:-translate-y-1 hover:scale-[1.02];
   }
 
-  .dashboard-card-gradient {
-    @apply bg-gradient-to-br from-primary to-primary-light text-primary-foreground rounded-lg p-6 shadow-primary;
+  .dashboard-stat-card {
+    @apply bg-gradient-card border border-border rounded-xl p-6 shadow-sm
+           hover:shadow-lg transition-spring transform
+           hover:-translate-y-2 hover:shadow-primary/10;
   }
 
-  /* Education-specific utilities */
+  .dashboard-metric-card {
+    @apply relative overflow-hidden bg-card border border-border rounded-xl p-6
+           shadow-md hover:shadow-xl transition-smooth
+           before:absolute before:inset-0 before:bg-gradient-to-br 
+           before:from-primary/5 before:to-transparent before:opacity-0
+           hover:before:opacity-100 before:transition-opacity;
+  }
+
+  .action-card {
+    @apply bg-card border border-border rounded-lg p-4 shadow-sm
+           hover:shadow-md transition-fast cursor-pointer
+           active:scale-95 active:shadow-sm;
+  }
+
+  .floating-card {
+    @apply bg-card/95 backdrop-blur-sm border border-border/50 
+           rounded-xl shadow-floating hover:shadow-2xl 
+           transition-spring transform hover:-translate-y-1;
+  }
+
+  /* Professional Role Badge System */
   .role-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-full 
+           text-xs font-medium transition-fast border shadow-xs
+           hover:shadow-sm transform hover:scale-105;
   }
 
   .role-admin {
-    @apply bg-primary/10 text-primary border border-primary/20;
+    @apply bg-primary/10 text-primary border-primary/20 
+           hover:bg-primary/15 hover:border-primary/30;
   }
 
   .role-instructor {
-    @apply bg-success/10 text-success border border-success/20;
+    @apply bg-success/10 text-success border-success/20
+           hover:bg-success/15 hover:border-success/30;
   }
 
   .role-mentor {
-    @apply bg-warning/10 text-warning border border-warning/20;
+    @apply bg-warning/10 text-warning border-warning/20
+           hover:bg-warning/15 hover:border-warning/30;
   }
 
   .role-student {
-    @apply bg-accent text-accent-foreground border border-border;
+    @apply bg-accent text-accent-foreground border-accent/30
+           hover:bg-accent/80 hover:border-accent/50;
+  }
+
+  /* Professional Button Enhancements */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground shadow-primary/25
+           hover:bg-primary/90 hover:shadow-primary/40
+           transition-smooth transform hover:-translate-y-0.5 
+           active:translate-y-0 active:shadow-primary/20;
+  }
+
+  .btn-success {
+    @apply bg-success text-success-foreground shadow-success/25
+           hover:bg-success/90 hover:shadow-success/40
+           transition-smooth transform hover:-translate-y-0.5;
+  }
+
+  .btn-warning {
+    @apply bg-warning text-warning-foreground shadow-warning/25
+           hover:bg-warning/90 hover:shadow-warning/40
+           transition-smooth transform hover:-translate-y-0.5;
+  }
+
+  /* Professional Navigation */
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           transition-smooth hover:bg-accent/50 
+           focus:bg-accent focus:outline-none focus:ring-2 focus:ring-primary/20;
+  }
+
+  .nav-link-active {
+    @apply bg-primary/10 text-primary border-l-2 border-primary
+           shadow-sm hover:bg-primary/15;
+  }
+
+  /* Professional Table Components */
+  .table-row {
+    @apply border-b border-border hover:bg-muted/30 transition-fast;
+  }
+
+  .table-header {
+    @apply bg-muted/50 border-b-2 border-border font-semibold text-muted-foreground;
+  }
+
+  /* Professional Form Components */
+  .form-field {
+    @apply bg-background border border-input rounded-md px-3 py-2
+           focus:border-primary focus:ring-2 focus:ring-primary/20
+           transition-fast outline-none placeholder:text-muted-foreground;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-foreground mb-1.5 block;
+  }
+
+  /* Professional Loading States */
+  .loading-skeleton {
+    @apply bg-gradient-to-r from-muted via-muted/50 to-muted
+           animate-pulse rounded;
+  }
+
+  .loading-shimmer {
+    @apply relative overflow-hidden bg-muted/30 rounded
+           before:absolute before:inset-0 before:bg-gradient-to-r
+           before:from-transparent before:via-white/20 before:to-transparent
+           before:animate-shimmer;
+  }
+
+  /* Professional Status Indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-online { @apply bg-success shadow-success/50; }
+  .status-offline { @apply bg-muted shadow-muted/50; }
+  .status-busy { @apply bg-warning shadow-warning/50; }
+  .status-away { @apply bg-orange-500 shadow-orange-500/50; }
+
+  /* Professional Micro-interactions */
+  .micro-bounce {
+    @apply transition-transform hover:scale-105 active:scale-95;
+  }
+
+  .micro-pulse {
+    @apply transition-all hover:animate-pulse;
+  }
+
+  .micro-glow {
+    @apply transition-all hover:shadow-lg hover:shadow-primary/20;
+  }
+
+  .micro-slide {
+    @apply transition-transform hover:translate-x-1;
+  }
+
+  /* Professional Layout Containers */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-container {
+    @apply bg-card border border-border rounded-xl p-6 shadow-sm;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+  }
+
+  /* Professional Typography */
+  .text-display {
+    @apply text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight;
+  }
+
+  .text-headline {
+    @apply text-2xl lg:text-3xl font-semibold tracking-tight;
+  }
+
+  .text-title {
+    @apply text-xl lg:text-2xl font-semibold;
+  }
+
+  .text-subtitle {
+    @apply text-lg font-medium text-muted-foreground;
+  }
+
+  .text-body {
+    @apply text-base leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm text-muted-foreground;
   }
 }

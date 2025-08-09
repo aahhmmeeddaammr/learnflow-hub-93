@@ -16,16 +16,16 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         <AppSidebar role={role} />
         
         <div className="flex-1 flex flex-col">
-          {/* Top Navigation */}
-          <header className="h-16 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 flex items-center px-6 gap-4 border-border">
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+          {/* Professional Top Navigation */}
+          <header className="h-16 border-b gradient-sidebar backdrop-blur-md sticky top-0 z-50 flex items-center px-6 gap-4 border-border shadow-sm">
+            <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-smooth micro-bounce" />
             
             <div className="flex-1 flex items-center justify-between">
-              <div>
-                <h1 className="text-lg font-semibold text-foreground capitalize">
+              <div className="animate-fade-in">
+                <h1 className="text-headline text-foreground capitalize">
                   {role} Dashboard
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-caption">
                   {new Date().toLocaleDateString('en-US', { 
                     weekday: 'long', 
                     year: 'numeric', 
@@ -35,18 +35,20 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
                 </p>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 animate-fade-in-right">
                 <ThemeToggle />
-                <div className={`role-badge role-${role}`}>
+                <div className={`role-badge role-${role} micro-pulse`}>
                   {role.charAt(0).toUpperCase() + role.slice(1)}
                 </div>
               </div>
             </div>
           </header>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 overflow-auto">
-            {children}
+          {/* Professional Main Content */}
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gradient-to-br from-background via-muted/30 to-background">
+            <div className="page-container animate-fade-in-up">
+              {children}
+            </div>
           </main>
         </div>
       </div>
