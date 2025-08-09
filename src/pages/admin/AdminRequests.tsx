@@ -45,71 +45,55 @@ const requests = [
 
 export default function AdminRequests() {
   return (
-    <DashboardLayout role="admin">
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Requests</h1>
-            <p className="text-muted-foreground">
-              Review and manage all system requests
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          {requests.map((request) => (
-            <Card key={request.id} className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      {request.type}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      From: {request.requester} ({request.role})
-                    </p>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-3 h-3" />
-                      {request.date}
-                    </div>
-                    <p className="text-sm text-foreground mt-1">
-                      {request.reason}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge
-                    variant={
-                      request.status === "approved"
-                        ? "default"
-                        : request.status === "rejected"
-                        ? "destructive"
-                        : "secondary"
-                    }
-                  >
-                    {request.status}
-                  </Badge>
-                  {request.status === "pending" && (
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Reject
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          ))}
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Requests</h1>
+          <p className="text-muted-foreground">Review and manage all system requests</p>
         </div>
       </div>
-    </DashboardLayout>
+
+      <div className="grid gap-4">
+        {requests.map((request) => (
+          <Card key={request.id} className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-foreground">{request.type}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    From: {request.requester} ({request.role})
+                  </p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="w-3 h-3" />
+                    {request.date}
+                  </div>
+                  <p className="text-sm text-foreground mt-1">{request.reason}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant={request.status === "approved" ? "default" : request.status === "rejected" ? "destructive" : "secondary"}>
+                  {request.status}
+                </Badge>
+                {request.status === "pending" && (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline">
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <XCircle className="w-4 h-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }

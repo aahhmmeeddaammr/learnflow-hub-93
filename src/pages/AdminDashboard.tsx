@@ -10,16 +10,7 @@ import AdminRequests from "./admin/AdminRequests";
 import AdminReports from "./admin/AdminReports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Users, 
-  GraduationCap, 
-  School, 
-  UserCheck,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  AlertTriangle
-} from "lucide-react";
+import { Users, GraduationCap, School, UserCheck, TrendingUp, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 
 function AdminOverview() {
   const stats = [
@@ -28,29 +19,29 @@ function AdminOverview() {
       value: "1,234",
       icon: Users,
       change: "+12%",
-      color: "text-primary"
+      color: "text-primary",
     },
     {
       title: "Active Groups",
       value: "45",
       icon: School,
       change: "+8%",
-      color: "text-success"
+      color: "text-success",
     },
     {
       title: "Diplomas",
       value: "12",
       icon: GraduationCap,
       change: "+2%",
-      color: "text-warning"
+      color: "text-warning",
     },
     {
       title: "Staff Members",
       value: "89",
       icon: UserCheck,
       change: "+5%",
-      color: "text-primary"
-    }
+      color: "text-primary",
+    },
   ];
 
   const recentRequests = [
@@ -60,7 +51,7 @@ function AdminOverview() {
       from: "John Smith",
       role: "Instructor",
       date: "2024-01-15",
-      status: "pending"
+      status: "pending",
     },
     {
       id: 2,
@@ -68,7 +59,7 @@ function AdminOverview() {
       from: "Sarah Wilson",
       role: "Mentor",
       date: "2024-01-14",
-      status: "approved"
+      status: "approved",
     },
     {
       id: 3,
@@ -76,20 +67,16 @@ function AdminOverview() {
       from: "Mike Johnson",
       role: "Instructor",
       date: "2024-01-13",
-      status: "pending"
-    }
+      status: "pending",
+    },
   ];
 
   return (
     <div className="space-y-8">
       {/* Professional Header */}
       <div className="animate-fade-in">
-        <h1 className="text-display gradient-primary bg-clip-text text-transparent">
-          Admin Dashboard
-        </h1>
-        <p className="text-subtitle mt-3">
-          Manage your educational institution efficiently with real-time insights
-        </p>
+        <h1 className="text-display gradient-primary bg-clip-text text-transparent text-4xl">Admin Dashboard</h1>
+        <p className="text-subtitle mt-3">Manage your educational institution efficiently with real-time insights</p>
       </div>
 
       {/* Professional Stats Grid */}
@@ -136,16 +123,14 @@ function AdminOverview() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
                       <h4 className="font-medium text-foreground">{request.type}</h4>
-                      <span className={`role-badge role-${request.role.toLowerCase()}`}>
-                        {request.role}
-                      </span>
+                      <span className={`role-badge role-${request.role.toLowerCase()}`}>{request.role}</span>
                     </div>
                     <p className="text-caption">
                       From {request.from} • {new Date(request.date).toLocaleDateString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 ml-4">
-                    {request.status === 'pending' ? (
+                    {request.status === "pending" ? (
                       <>
                         <Button size="sm" variant="outline" className="h-8 micro-bounce">
                           Decline
@@ -188,7 +173,7 @@ function AdminOverview() {
               Invite Staff
             </Button>
           </div>
-          
+
           <div className="mt-8 pt-6 border-t border-border">
             <h4 className="text-sm font-medium mb-4">System Status</h4>
             <div className="space-y-3">

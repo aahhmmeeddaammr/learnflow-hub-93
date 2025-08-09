@@ -3,12 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { School, Users, Plus, MoreVertical } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 const groups = [
   {
@@ -51,71 +46,59 @@ const groups = [
 
 export default function AdminGroups() {
   return (
-    <DashboardLayout role="admin">
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Groups</h1>
-            <p className="text-muted-foreground">
-              Manage student groups and class assignments
-            </p>
-          </div>
-          <Button className="bg-primary text-primary-foreground">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Group
-          </Button>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Groups</h1>
+          <p className="text-muted-foreground">Manage student groups and class assignments</p>
         </div>
+        <Button className="bg-primary text-primary-foreground">
+          <Plus className="w-4 h-4 mr-2" />
+          Create Group
+        </Button>
+      </div>
 
-        <div className="grid gap-4">
-          {groups.map((group) => (
-            <Card key={group.id} className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <School className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground">
-                      {group.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {group.diploma}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {group.students} students
-                      </div>
-                      <span>Instructor: {group.instructor}</span>
-                      <span>Mentor: {group.mentor}</span>
-                    </div>
-                  </div>
+      <div className="grid gap-4">
+        {groups.map((group) => (
+          <Card key={group.id} className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                  <School className="w-6 h-6 text-primary" />
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge
-                    variant={group.status === "active" ? "default" : "secondary"}
-                  >
-                    {group.status}
-                  </Badge>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Edit Group</DropdownMenuItem>
-                      <DropdownMenuItem>Manage Students</DropdownMenuItem>
-                      <DropdownMenuItem>Archive</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <div>
+                  <h3 className="font-semibold text-foreground">{group.name}</h3>
+                  <p className="text-sm text-muted-foreground">{group.diploma}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Users className="w-3 h-3" />
+                      {group.students} students
+                    </div>
+                    <span>Instructor: {group.instructor}</span>
+                    <span>Mentor: {group.mentor}</span>
+                  </div>
                 </div>
               </div>
-            </Card>
-          ))}
-        </div>
+              <div className="flex items-center gap-3">
+                <Badge variant={group.status === "active" ? "default" : "secondary"}>{group.status}</Badge>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                    <DropdownMenuItem>Edit Group</DropdownMenuItem>
+                    <DropdownMenuItem>Manage Students</DropdownMenuItem>
+                    <DropdownMenuItem>Archive</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
