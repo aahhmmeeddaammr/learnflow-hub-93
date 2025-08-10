@@ -284,7 +284,49 @@
     @apply border border-border rounded-xl p-6 shadow-sm
            hover:shadow-lg transition-spring transform
            hover:-translate-y-2 hover:shadow-primary/10;
+  /* RTL Support */
+  .rtl {
+    direction: rtl;
   }
+  
+  .rtl .sidebar {
+    border-left: none;
+    border-right: 1px solid var(--border);
+  }
+  
+  .rtl .sidebar-trigger {
+    transform: rotate(180deg);
+  }
+  
+  .rtl .flex-row-reverse {
+    flex-direction: row-reverse;
+  }
+  
+  .rtl .text-right {
+    text-align: right;
+  }
+  
+  .rtl .ml-2 {
+    margin-left: 0;
+    margin-right: 0.5rem;
+  }
+  
+  .rtl .mr-2 {
+    margin-right: 0;
+    margin-left: 0.5rem;
+  }
+  
+  .rtl .pl-3 {
+    padding-left: 0;
+    padding-right: 0.75rem;
+  }
+  
+  .rtl .pr-3 {
+    padding-right: 0;
+    padding-left: 0.75rem;
+  }
+
+}
 
   .dashboard-metric-card {
     @apply relative overflow-hidden bg-card border border-border rounded-xl p-6

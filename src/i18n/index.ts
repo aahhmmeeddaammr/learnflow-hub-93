@@ -24,4 +24,17 @@ i18n
     }
   });
 
+// Handle RTL direction changes
+i18n.on('languageChanged', (lng) => {
+  const isRTL = lng === 'ar';
+  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  document.documentElement.lang = lng;
+  document.body.classList.toggle('rtl', isRTL);
+});
+
+// Set initial direction
+const isRTL = i18n.language === 'ar';
+document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+document.body.classList.toggle('rtl', isRTL);
+
 export default i18n;
