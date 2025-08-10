@@ -8,19 +8,38 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { SearchFilter } from '@/components/ui/search-filter';
 import { Users, Plus, Edit, Trash2, Mail, Calendar } from 'lucide-react';
 import { UserRole } from '@/types/auth';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminUsers() {
   const { users, addUser, updateUser, deleteUser } = useAuth();
+  const { t } = useTranslation();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
     role: 'student' as UserRole,
     department: '',
     isActive: true
+  });
+
+  const roles = ['admin', 'instructor', 'mentor', 'student'];
+
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || 
+                         (statusFilter === "active" && user.isActive) ||
+                         (statusFilter === "inactive" && !user.isActive);
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
+    
+    return matchesSearch && matchesStatus && matchesRole;
   });
 
   const handleAddUser = () => {
@@ -54,15 +73,15 @@ export default function AdminUsers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-          <p className="text-muted-foreground">Manage system users and their roles</p>
+          <h1 className="text-3xl font-bold text-foreground">{t('users.title')}</h1>
+          <p className="text-muted-foreground">{t('users.description')}</p>
         </div>
         
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="w-4 h-4 mr-2" />
-              Add User
+              {t('users.addUser')}
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -124,6 +143,18 @@ export default function AdminUsers() {
         </Dialog>
       </div>
 
+      <div className="flex gap-4 mb-6">
+        <SearchFilter
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          departmentFilter={roleFilter}
+          onDepartmentFilterChange={setRoleFilter}
+          departments={roles}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -172,7 +203,7 @@ export default function AdminUsers() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">

@@ -3,6 +3,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/navigation/AppSidebar";
 import { UserRole } from "@/types/auth";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { useTranslation } from 'react-i18next';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -10,6 +12,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
+  const { t } = useTranslation();
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen flex w-full bg-background">
@@ -23,7 +26,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
             <div className="flex-1 flex items-center justify-between">
               <div className="animate-fade-in">
                 <h1 className="text-headline text-foreground capitalize">
-                  {role} Dashboard
+                  {t('nav.dashboard')}
                 </h1>
                 <p className="text-caption">
                   {new Date().toLocaleDateString('en-US', { 
@@ -36,6 +39,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
               </div>
               
               <div className="flex items-center gap-4 animate-fade-in-right">
+                <LanguageSwitcher />
                 <ThemeToggle />
                 <div className={`role-badge role-${role} micro-pulse`}>
                   {role.charAt(0).toUpperCase() + role.slice(1)}

@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "users": "المستخدمين",
+    "instructors": "المدرسين", 
+    "mentors": "المرشدين",
+    "students": "الطلاب",
+    "groups": "المجموعات",
+    "excuses": "الأعذار",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "help": "المساعدة",
+    "logout": "تسجيل الخروج"
+  },
+  "common": {
+    "search": "البحث...",
+    "filter": "تصفية",
+    "add": "إضافة",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "view": "عرض",
+    "save": "حفظ", 
+    "cancel": "إلغاء",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "status": "الحالة",
+    "department": "القسم",
+    "actions": "الإجراءات",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "all": "الكل",
+    "export": "تصدير",
+    "import": "استيراد",
+    "language": "اللغة"
+  },
+  "instructors": {
+    "title": "المدرسين",
+    "description": "إدارة حسابات المدرسين والمهام",
+    "addInstructor": "إضافة مدرس",
+    "groups": "مجموعات",
+    "viewGroups": "عرض المجموعات",
+    "deactivate": "إلغاء التفعيل"
+  },
+  "mentors": {
+    "title": "المرشدين",
+    "description": "إدارة حسابات المرشدين والمهام", 
+    "addMentor": "إضافة مرشد",
+    "groups": "مجموعات",
+    "viewGroups": "عرض المجموعات",
+    "deactivate": "إلغاء التفعيل"
+  },
+  "users": {
+    "title": "المستخدمين",
+    "description": "إدارة جميع حسابات المستخدمين",
+    "addUser": "إضافة مستخدم",
+    "role": "الدور",
+    "lastLogin": "آخر تسجيل دخول"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بك في نظام Route ERP",
+    "totalUsers": "إجمالي المستخدمين",
+    "activeProjects": "المشاريع النشطة",
+    "systemStatus": "حالة النظام", 
+    "notifications": "الإشعارات"
+  }
+}

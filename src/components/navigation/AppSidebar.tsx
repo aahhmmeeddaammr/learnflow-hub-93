@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types/auth";
 import routeLogo from "@/assets/route-logo.png";
+import { useTranslation } from 'react-i18next';
 import {
   Users,
   GraduationCap,
@@ -47,45 +48,46 @@ export function AppSidebar({ role }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [expandedGroups, setExpandedGroups] = useState<string[]>(["main"]);
 
   const adminMenuItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-    { title: "User Management", url: "/admin/users", icon: Users },
-    { title: "Instructors", url: "/admin/instructors", icon: Users },
-    { title: "Mentors", url: "/admin/mentors", icon: UserCheck },
+    { title: t('nav.dashboard'), url: "/admin", icon: LayoutDashboard },
+    { title: t('nav.users'), url: "/admin/users", icon: Users },
+    { title: t('nav.instructors'), url: "/admin/instructors", icon: Users },
+    { title: t('nav.mentors'), url: "/admin/mentors", icon: UserCheck },
     { title: "Diplomas", url: "/admin/diplomas", icon: GraduationCap },
-    { title: "Groups", url: "/admin/groups", icon: School },
-    { title: "Excuse Management", url: "/admin/excuses", icon: FileText },
+    { title: t('nav.groups'), url: "/admin/groups", icon: School },
+    { title: t('nav.excuses'), url: "/admin/excuses", icon: FileText },
     { title: "Requests", url: "/admin/requests", icon: FileText },
-    { title: "Reports", url: "/admin/reports", icon: BarChart3 },
+    { title: t('nav.reports'), url: "/admin/reports", icon: BarChart3 },
   ];
 
   const instructorMenuItems = [
-    { title: "Dashboard", url: "/instructor", icon: LayoutDashboard },
-    { title: "Groups", url: "/instructor/groups", icon: School },
+    { title: t('nav.dashboard'), url: "/instructor", icon: LayoutDashboard },
+    { title: t('nav.groups'), url: "/instructor/groups", icon: School },
     { title: "Marks & Attendance", url: "/instructor/marks", icon: ClipboardCheck },
     { title: "Tickets", url: "/instructor/tickets", icon: MessageSquare },
   ];
 
   const mentorMenuItems = [
-    { title: "Dashboard", url: "/mentor", icon: LayoutDashboard },
-    { title: "Groups", url: "/mentor/groups", icon: School },
+    { title: t('nav.dashboard'), url: "/mentor", icon: LayoutDashboard },
+    { title: t('nav.groups'), url: "/mentor/groups", icon: School },
     { title: "Assignments", url: "/mentor/assignments", icon: BookOpen },
     { title: "Tickets", url: "/mentor/tickets", icon: MessageSquare },
   ];
 
   const studentMenuItems = [
-    { title: "Dashboard", url: "/student", icon: LayoutDashboard },
+    { title: t('nav.dashboard'), url: "/student", icon: LayoutDashboard },
     { title: "Grades", url: "/student/grades", icon: BarChart3 },
     { title: "Attendance", url: "/student/attendance", icon: Calendar },
-    { title: "Excuses", url: "/student/excuses", icon: FileText },
+    { title: t('nav.excuses'), url: "/student/excuses", icon: FileText },
     { title: "Announcements", url: "/student/announcements", icon: MessageSquare },
   ];
 
   const commonItems = [
-    { title: "Settings", url: "/settings", icon: Settings },
-    { title: "Help", url: "/help", icon: HelpCircle },
+    { title: t('nav.settings'), url: "/settings", icon: Settings },
+    { title: t('nav.help'), url: "/help", icon: HelpCircle },
   ];
 
   const getMenuItems = () => {
@@ -240,7 +242,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
               }}
             >
               <LogOut className="w-4 h-4 mr-2" />
-              Logout
+              {t('nav.logout')}
             </Button>
           )}
         </div>

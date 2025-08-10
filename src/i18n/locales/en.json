@@ -1,0 +1,66 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users", 
+    "instructors": "Instructors",
+    "mentors": "Mentors",
+    "students": "Students",
+    "groups": "Groups",
+    "excuses": "Excuses",
+    "reports": "Reports",
+    "settings": "Settings",
+    "help": "Help",
+    "logout": "Logout"
+  },
+  "common": {
+    "search": "Search...",
+    "filter": "Filter",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View",
+    "save": "Save",
+    "cancel": "Cancel",
+    "name": "Name",
+    "email": "Email",
+    "status": "Status",
+    "department": "Department",
+    "actions": "Actions",
+    "active": "Active",
+    "inactive": "Inactive",
+    "all": "All",
+    "export": "Export",
+    "import": "Import",
+    "language": "Language"
+  },
+  "instructors": {
+    "title": "Instructors",
+    "description": "Manage instructor accounts and assignments",
+    "addInstructor": "Add Instructor",
+    "groups": "groups",
+    "viewGroups": "View Groups",
+    "deactivate": "Deactivate"
+  },
+  "mentors": {
+    "title": "Mentors", 
+    "description": "Manage mentor accounts and assignments",
+    "addMentor": "Add Mentor",
+    "groups": "groups",
+    "viewGroups": "View Groups",
+    "deactivate": "Deactivate"
+  },
+  "users": {
+    "title": "Users",
+    "description": "Manage all user accounts",
+    "addUser": "Add User",
+    "role": "Role",
+    "lastLogin": "Last Login"
+  },
+  "dashboard": {
+    "welcome": "Welcome to Route ERP",
+    "totalUsers": "Total Users",
+    "activeProjects": "Active Projects", 
+    "systemStatus": "System Status",
+    "notifications": "Notifications"
+  }
+}
