@@ -289,23 +289,30 @@
     direction: rtl;
   }
   
-  .rtl .sidebar {
-    border-left: none;
-    border-right: 1px solid var(--border);
+  /* RTL Sidebar positioning */
+  .rtl [data-sidebar="sidebar"] {
+    order: 2;
+  }
+  
+  .rtl .sidebar-content {
+    border-left: 1px solid var(--border);
+    border-right: none;
   }
   
   .rtl .sidebar-trigger {
     transform: rotate(180deg);
   }
   
-  .rtl .flex-row-reverse {
+  /* RTL Layout adjustments */
+  .rtl .flex {
     flex-direction: row-reverse;
   }
   
-  .rtl .text-right {
-    text-align: right;
+  .rtl .justify-between {
+    flex-direction: row-reverse;
   }
   
+  /* RTL Spacing fixes */
   .rtl .ml-2 {
     margin-left: 0;
     margin-right: 0.5rem;
@@ -324,6 +331,20 @@
   .rtl .pr-3 {
     padding-right: 0;
     padding-left: 0.75rem;
+  }
+  
+  .rtl .pl-10 {
+    padding-left: 0;
+    padding-right: 2.5rem;
+  }
+  
+  /* RTL Text alignment */
+  .rtl .text-left {
+    text-align: right;
+  }
+  
+  .rtl .text-right {
+    text-align: left;
   }
 
 }

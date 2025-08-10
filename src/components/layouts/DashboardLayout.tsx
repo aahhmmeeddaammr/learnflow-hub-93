@@ -15,7 +15,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const { t } = useTranslation();
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background rtl:flex-row-reverse">
         <AppSidebar role={role} />
         
         <div className="flex-1 flex flex-col">
