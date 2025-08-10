@@ -212,6 +212,29 @@
     background: var(--gradient-sidebar);
   }
 
+  /* Utility classes for @apply directive */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+  .bg-gradient-warning {
+    background: var(--gradient-warning);
+  }
+  .bg-gradient-card {
+    background: var(--gradient-card);
+  }
+  .bg-gradient-sidebar {
+    background: var(--gradient-sidebar);
+  }
+
   /* Professional Shadow System */
   .shadow-xs {
     box-shadow: var(--shadow-xs);
