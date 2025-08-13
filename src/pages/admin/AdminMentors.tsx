@@ -7,6 +7,8 @@ import { SearchFilter } from "@/components/ui/search-filter";
 import { UserCheck, Mail, Plus, MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTranslation } from 'react-i18next';
+import { MentorDetailsSheet } from "@/components/admin/sheets/MentorDetailsSheet";
+import { CreateMentorModal } from "@/components/admin/modals/CreateMentorModal";
 
 const mentors = [
   {
@@ -40,6 +42,9 @@ export default function AdminMentors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [selectedMentor, setSelectedMentor] = useState<typeof mentors[0] | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const departments = Array.from(new Set(mentors.map(mentor => mentor.department)));
 
@@ -52,6 +57,11 @@ export default function AdminMentors() {
     return matchesSearch && matchesStatus && matchesDepartment;
   });
 
+  const handleViewDetails = (mentor: typeof mentors[0]) => {
+    setSelectedMentor(mentor);
+    setIsSheetOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -59,7 +69,10 @@ export default function AdminMentors() {
           <h1 className="text-2xl font-bold text-foreground">{t('mentors.title')}</h1>
           <p className="text-muted-foreground">{t('mentors.description')}</p>
         </div>
-        <Button className="bg-primary text-primary-foreground">
+        <Button 
+          className="bg-primary text-primary-foreground"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           {t('mentors.addMentor')}
         </Button>
@@ -103,6 +116,9 @@ export default function AdminMentors() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleViewDetails(mentor)}>
+                      {t('common.view')}
+                    </DropdownMenuItem>
                     <DropdownMenuItem>{t('common.edit')}</DropdownMenuItem>
                     <DropdownMenuItem>{t('mentors.viewGroups')}</DropdownMenuItem>
                     <DropdownMenuItem>{t('mentors.deactivate')}</DropdownMenuItem>
@@ -113,6 +129,18 @@ export default function AdminMentors() {
           </Card>
         ))}
       </div>
+
+      <MentorDetailsSheet
+        mentor={selectedMentor}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      />
+
+      <CreateMentorModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onSubmit={(data) => console.log('Creating mentor:', data)}
+      />
     </div>
   );
 }

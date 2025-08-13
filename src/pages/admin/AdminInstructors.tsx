@@ -7,6 +7,8 @@ import { SearchFilter } from "@/components/ui/search-filter";
 import { Users, Mail, Plus, MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useTranslation } from 'react-i18next';
+import { InstructorDetailsSheet } from "@/components/admin/sheets/InstructorDetailsSheet";
+import { CreateInstructorModal } from "@/components/admin/modals/CreateInstructorModal";
 
 const instructors = [
   {
@@ -40,6 +42,9 @@ export default function AdminInstructors() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [selectedInstructor, setSelectedInstructor] = useState<typeof instructors[0] | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const departments = Array.from(new Set(instructors.map(instructor => instructor.department)));
 
@@ -52,6 +57,16 @@ export default function AdminInstructors() {
     return matchesSearch && matchesStatus && matchesDepartment;
   });
 
+  const handleViewDetails = (instructor: typeof instructors[0]) => {
+    setSelectedInstructor(instructor);
+    setIsSheetOpen(true);
+  };
+
+  const handleCreateInstructor = (data: any) => {
+    console.log('Creating instructor:', data);
+    // Add instructor creation logic here
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -59,7 +74,10 @@ export default function AdminInstructors() {
           <h1 className="text-2xl font-bold text-foreground">{t('instructors.title')}</h1>
           <p className="text-muted-foreground">{t('instructors.description')}</p>
         </div>
-        <Button className="bg-primary text-primary-foreground">
+        <Button 
+          className="bg-primary text-primary-foreground"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           <Plus className="w-4 h-4 mr-2" />
           {t('instructors.addInstructor')}
         </Button>
@@ -105,6 +123,9 @@ export default function AdminInstructors() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleViewDetails(instructor)}>
+                      {t('common.view')}
+                    </DropdownMenuItem>
                     <DropdownMenuItem>{t('common.edit')}</DropdownMenuItem>
                     <DropdownMenuItem>{t('instructors.viewGroups')}</DropdownMenuItem>
                     <DropdownMenuItem>{t('instructors.deactivate')}</DropdownMenuItem>
@@ -115,6 +136,18 @@ export default function AdminInstructors() {
           </Card>
         ))}
       </div>
+
+      <InstructorDetailsSheet
+        instructor={selectedInstructor}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      />
+
+      <CreateInstructorModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
+        onSubmit={handleCreateInstructor}
+      />
     </div>
   );
 }
