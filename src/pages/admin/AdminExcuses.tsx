@@ -8,10 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Clock, CheckCircle, XCircle, Calendar, User } from 'lucide-react';
 import { Excuse } from '@/types/excuse';
+import { ExcuseDetailsSheet } from '@/components/admin/sheets/ExcuseDetailsSheet';
 
 export default function AdminExcuses() {
   const { excuses, updateExcuseStatus, getPendingExcuses } = useExcuse();
   const [selectedExcuse, setSelectedExcuse] = useState<Excuse | null>(null);
+  const [showExcuseDetails, setShowExcuseDetails] = useState(false);
   const [reviewNotes, setReviewNotes] = useState('');
 
   const pendingExcuses = getPendingExcuses();
@@ -80,7 +82,7 @@ export default function AdminExcuses() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => setSelectedExcuse(excuse)}
+                  onClick={() => { setSelectedExcuse(excuse); setShowExcuseDetails(true); }}
                 >
                   <FileText className="w-4 h-4 mr-1" />
                   View Details
@@ -255,6 +257,14 @@ export default function AdminExcuses() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <ExcuseDetailsSheet
+        excuse={selectedExcuse}
+        open={showExcuseDetails}
+        onOpenChange={setShowExcuseDetails}
+        onApprove={(excuseId, notes) => updateExcuseStatus(excuseId, 'approved', notes)}
+        onReject={(excuseId, notes) => updateExcuseStatus(excuseId, 'rejected', notes)}
+      />
     </div>
   );
 }
