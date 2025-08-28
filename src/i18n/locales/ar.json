@@ -72,7 +72,10 @@
     "selectSemester": "اختر الفصل الدراسي",
     "enterGroupName": "أدخل اسم المجموعة",
     "enterRoom": "أدخل رقم القاعة",
-    "enterSchedule": "أدخل الجدول"
+    "enterSchedule": "أدخل الجدول",
+    "profileImage": "صورة الملف الشخصي",
+    "clickToUpload": "انقر للرفع",
+    "dragDropImage": "أو اسحب وأفلت صورتك هنا"
   },
   "instructors": {
     "title": "المدرسين",

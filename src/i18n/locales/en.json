@@ -72,7 +72,10 @@
     "selectSemester": "Select semester",
     "enterGroupName": "Enter group name",
     "enterRoom": "Enter room number",
-    "enterSchedule": "Enter schedule"
+    "enterSchedule": "Enter schedule",
+    "profileImage": "Profile Image",
+    "clickToUpload": "Click to upload",
+    "dragDropImage": "or drag and drop your image here"
   },
   "instructors": {
     "title": "Instructors",

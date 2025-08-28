@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Upload, X, User } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CreateInstructorModalProps {
   open: boolean;
@@ -22,20 +24,62 @@ interface CreateInstructorModalProps {
 
 export function CreateInstructorModal({ open, onOpenChange, onSubmit }: CreateInstructorModalProps) {
   const { t } = useTranslation();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       phone: "",
       department: "",
-      status: "active"
+      status: "active",
+      image: null as File | null
     }
   });
 
   const handleSubmit = (data: any) => {
     onSubmit(data);
     form.reset();
+    setPreview(null);
     onOpenChange(false);
+  };
+
+  const handleFileUpload = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
+      form.setValue('image', file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = e.dataTransfer.files;
+    if (files && files[0]) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const removeImage = () => {
+    form.setValue('image', null);
+    setPreview(null);
   };
 
   return (
@@ -50,6 +94,83 @@ export function CreateInstructorModal({ open, onOpenChange, onSubmit }: CreateIn
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            {/* Image Upload */}
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('common.profileImage')}</FormLabel>
+                  <FormControl>
+                    <div className="space-y-4">
+                      {/* Upload Area */}
+                      <div
+                        className={cn(
+                          "relative border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer hover:bg-muted/50",
+                          dragActive ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+                          preview ? "border-primary" : ""
+                        )}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                      >
+                        <input
+                          id="image-upload"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleFileUpload(file);
+                          }}
+                        />
+                        
+                        {preview ? (
+                          <div className="relative">
+                            <img
+                              src={preview}
+                              alt="Preview"
+                              className="w-32 h-32 object-cover rounded-lg mx-auto"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeImage();
+                              }}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                              <Upload className="h-6 w-6 text-muted-foreground" />
+                            </div>
+                            <p className="text-sm font-medium text-foreground mb-1">
+                              {t('common.clickToUpload')}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {t('common.dragDropImage')}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              PNG, JPG up to 10MB
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="name"
