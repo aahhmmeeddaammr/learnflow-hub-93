@@ -27,7 +27,11 @@ function InstructorOverview() {
       students: 28,
       avgAttendance: 92,
       avgGrades: 85,
-      lastSession: "2024-01-15"
+      lastSession: "2024-01-15",
+      schedule: [
+        { day: 'monday', time: '09:00-11:00', room: 'Room 101' },
+        { day: 'wednesday', time: '14:00-16:00', room: 'Room 101' }
+      ]
     },
     {
       id: 2,
@@ -36,7 +40,11 @@ function InstructorOverview() {
       students: 25,
       avgAttendance: 88,
       avgGrades: 78,
-      lastSession: "2024-01-14"
+      lastSession: "2024-01-14",
+      schedule: [
+        { day: 'tuesday', time: '10:00-12:00', room: 'Room 203' },
+        { day: 'thursday', time: '15:00-17:00', room: 'Room 203' }
+      ]
     },
     {
       id: 3,
@@ -45,7 +53,11 @@ function InstructorOverview() {
       students: 22,
       avgAttendance: 95,
       avgGrades: 89,
-      lastSession: "2024-01-13"
+      lastSession: "2024-01-13",
+      schedule: [
+        { day: 'friday', time: '08:00-10:00', room: 'Lab B' },
+        { day: 'saturday', time: '13:00-15:00', room: 'Lab B' }
+      ]
     }
   ];
 
@@ -260,7 +272,7 @@ function InstructorOverview() {
 
       {/* Calendar Section */}
       <div className="mt-8">
-        <InstructorCalendar />
+        <InstructorCalendar groups={myGroups} />
       </div>
     </div>
   );

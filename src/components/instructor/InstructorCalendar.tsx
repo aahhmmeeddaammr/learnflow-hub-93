@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -7,6 +7,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddNoteModal } from './AddNoteModal';
 import { EventApi, DateSelectArg, EventClickArg } from '@fullcalendar/core';
+
+interface Group {
+  id: number;
+  name: string;
+  diploma: string;
+  students: number;
+  avgAttendance: number;
+  avgGrades: number;
+  lastSession: string;
+  schedule: {
+    day: string;
+    time: string;
+    room: string;
+  }[];
+}
 
 interface Session {
   id: string;
@@ -39,59 +54,80 @@ interface Note {
 
 type CalendarEvent = Session | Note;
 
-// Mock sessions data
-const mockSessions: Session[] = [
-  {
-    id: '1',
-    title: 'Mathematics - CS-2024-A',
-    start: '2025-01-06T09:00:00',
-    end: '2025-01-06T11:00:00',
-    backgroundColor: 'hsl(var(--primary))',
-    borderColor: 'hsl(var(--primary))',
-    textColor: 'hsl(var(--primary-foreground))',
-    extendedProps: {
-      type: 'session',
-      group: 'CS-2024-A',
-      subject: 'Mathematics',
-      room: 'Room 101'
-    }
-  },
-  {
-    id: '2',
-    title: 'Physics - CS-2024-B',
-    start: '2025-01-06T14:00:00',
-    end: '2025-01-06T16:00:00',
-    backgroundColor: 'hsl(var(--secondary))',
-    borderColor: 'hsl(var(--secondary))',
-    textColor: 'hsl(var(--secondary-foreground))',
-    extendedProps: {
-      type: 'session',
-      group: 'CS-2024-B',
-      subject: 'Physics',
-      room: 'Room 203'
-    }
-  },
-  {
-    id: '3',
-    title: 'Mathematics - CS-2024-A',
-    start: '2025-01-08T10:00:00',
-    end: '2025-01-08T12:00:00',
-    backgroundColor: 'hsl(var(--primary))',
-    borderColor: 'hsl(var(--primary))',
-    textColor: 'hsl(var(--primary-foreground))',
-    extendedProps: {
-      type: 'session',
-      group: 'CS-2024-A',
-      subject: 'Mathematics',
-      room: 'Room 101'
-    }
-  }
-];
+interface InstructorCalendarProps {
+  groups: Group[];
+}
 
-export function InstructorCalendar() {
-  const [events, setEvents] = useState<CalendarEvent[]>(mockSessions);
+// Generate recurring events for the next 4 weeks
+const generateGroupSessions = (groups: Group[]): Session[] => {
+  const sessions: Session[] = [];
+  const today = new Date();
+  const weeksToGenerate = 4;
+  
+  // Day name to number mapping
+  const dayMap: { [key: string]: number } = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6
+  };
+
+  groups.forEach(group => {
+    group.schedule.forEach(scheduleItem => {
+      const targetDay = dayMap[scheduleItem.day.toLowerCase()];
+      const [startTime, endTime] = scheduleItem.time.split('-');
+      
+      // Generate sessions for the next few weeks
+      for (let week = 0; week < weeksToGenerate; week++) {
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() + (targetDay - today.getDay() + 7 * week));
+        
+        const endDate = new Date(startDate);
+        
+        // Parse time and set hours
+        const [startHour, startMinute] = startTime.split(':').map(Number);
+        const [endHour, endMinute] = endTime.split(':').map(Number);
+        
+        startDate.setHours(startHour, startMinute, 0, 0);
+        endDate.setHours(endHour, endMinute, 0, 0);
+
+        sessions.push({
+          id: `${group.id}-${week}-${scheduleItem.day}`,
+          title: `${group.name} - ${group.diploma}`,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          backgroundColor: group.id === 1 ? 'hsl(var(--primary))' : 
+                          group.id === 2 ? 'hsl(var(--secondary))' : 'hsl(var(--accent))',
+          borderColor: group.id === 1 ? 'hsl(var(--primary))' : 
+                      group.id === 2 ? 'hsl(var(--secondary))' : 'hsl(var(--accent))',
+          textColor: 'hsl(var(--primary-foreground))',
+          extendedProps: {
+            type: 'session',
+            group: group.name,
+            subject: group.diploma,
+            room: scheduleItem.room
+          }
+        });
+      }
+    });
+  });
+
+  return sessions;
+};
+
+export function InstructorCalendar({ groups }: InstructorCalendarProps) {
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
+
+  // Generate sessions from groups data
+  useEffect(() => {
+    const generatedSessions = generateGroupSessions(groups);
+    setEvents(generatedSessions);
+  }, [groups]);
 
   const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
     setSelectedDate(selectInfo.startStr);
