@@ -6,6 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AddNoteModal } from './AddNoteModal';
+import { NoteDetailsModal } from './NoteDetailsModal';
 import { EventApi, DateSelectArg, EventClickArg } from '@fullcalendar/core';
 
 interface Group {
@@ -121,7 +122,9 @@ const generateGroupSessions = (groups: Group[]): Session[] => {
 export function InstructorCalendar({ groups }: InstructorCalendarProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isNoteDetailsModalOpen, setIsNoteDetailsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   // Generate sessions from groups data
   useEffect(() => {
@@ -136,12 +139,20 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
 
   const handleEventClick = useCallback((clickInfo: EventClickArg) => {
     if (clickInfo.event.extendedProps.type === 'note') {
-      const shouldDelete = window.confirm(
-        `Delete note: "${clickInfo.event.title}"?`
-      );
-      if (shouldDelete) {
-        setEvents(prev => prev.filter(event => event.id !== clickInfo.event.id));
-      }
+      const noteData: Note = {
+        id: clickInfo.event.id,
+        title: clickInfo.event.title,
+        start: clickInfo.event.startStr,
+        backgroundColor: clickInfo.event.backgroundColor || 'hsl(var(--accent))',
+        borderColor: clickInfo.event.borderColor || 'hsl(var(--accent-foreground))',
+        textColor: clickInfo.event.textColor || 'hsl(var(--accent-foreground))',
+        extendedProps: {
+          type: 'note',
+          content: clickInfo.event.extendedProps.content || ''
+        }
+      };
+      setSelectedNote(noteData);
+      setIsNoteDetailsModalOpen(true);
     }
   }, []);
 
@@ -162,6 +173,27 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
     setEvents(prev => [...prev, newNote]);
     setIsNoteModalOpen(false);
   }, [selectedDate]);
+
+  const handleUpdateNote = useCallback((noteId: string, noteData: { title: string; content: string }) => {
+    setEvents(prev => prev.map(event => {
+      if (event.id === noteId && event.extendedProps.type === 'note') {
+        return {
+          ...event,
+          title: noteData.title,
+          extendedProps: {
+            ...event.extendedProps,
+            content: noteData.content
+          }
+        } as Note;
+      }
+      return event;
+    }));
+    setIsNoteDetailsModalOpen(false);
+  }, []);
+
+  const handleDeleteNote = useCallback((noteId: string) => {
+    setEvents(prev => prev.filter(event => event.id !== noteId));
+  }, []);
 
   const renderEventContent = useCallback((eventInfo: any) => {
     const { event } = eventInfo;
@@ -250,6 +282,14 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
         onClose={() => setIsNoteModalOpen(false)}
         onSave={handleAddNote}
         date={selectedDate}
+      />
+
+      <NoteDetailsModal
+        isOpen={isNoteDetailsModalOpen}
+        onClose={() => setIsNoteDetailsModalOpen(false)}
+        note={selectedNote}
+        onUpdate={handleUpdateNote}
+        onDelete={handleDeleteNote}
       />
 
       <style>{`
