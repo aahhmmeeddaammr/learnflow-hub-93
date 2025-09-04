@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import InstructorGroups from "./instructor/InstructorGroups";
 import InstructorMarks from "./instructor/InstructorMarks";
 import InstructorTickets from "./instructor/InstructorTickets";
+import { InstructorCalendar } from "@/components/instructor/InstructorCalendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -255,6 +256,11 @@ function InstructorOverview() {
           <MessageSquare className="w-6 h-6" />
           <span>Raise Ticket</span>
         </Button>
+      </div>
+
+      {/* Calendar Section */}
+      <div className="mt-8">
+        <InstructorCalendar />
       </div>
     </div>
   );
