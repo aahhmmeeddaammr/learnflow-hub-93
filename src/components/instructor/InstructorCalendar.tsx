@@ -138,7 +138,11 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
   }, []);
 
   const handleEventClick = useCallback((clickInfo: EventClickArg) => {
+    console.log('Event clicked:', clickInfo.event);
+    console.log('Event type:', clickInfo.event.extendedProps.type);
+    
     if (clickInfo.event.extendedProps.type === 'note') {
+      console.log('Note clicked - opening details modal');
       const noteData: Note = {
         id: clickInfo.event.id,
         title: clickInfo.event.title,
@@ -157,6 +161,7 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
   }, []);
 
   const handleAddNote = useCallback((noteData: { title: string; content: string }) => {
+    console.log('Adding note:', noteData);
     const newNote: Note = {
       id: `note-${Date.now()}`,
       title: noteData.title,
@@ -170,6 +175,7 @@ export function InstructorCalendar({ groups }: InstructorCalendarProps) {
       }
     };
 
+    console.log('New note created:', newNote);
     setEvents(prev => [...prev, newNote]);
     setIsNoteModalOpen(false);
   }, [selectedDate]);
