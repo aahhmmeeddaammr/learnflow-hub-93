@@ -55,7 +55,10 @@ export default function InstructorGroups() {
                     </p>
                   </div>
                 </div>
-                <Button className="bg-primary text-primary-foreground">
+                <Button 
+                  className="bg-primary text-primary-foreground"
+                  onClick={() => window.location.href = '/instructor/group-details'}
+                >
                   View Details
                 </Button>
               </div>

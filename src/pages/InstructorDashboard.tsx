@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import InstructorGroups from "./instructor/InstructorGroups";
+import InstructorGroupDetails from "./instructor/InstructorGroupDetails";
 import InstructorMarks from "./instructor/InstructorMarks";
 import InstructorTickets from "./instructor/InstructorTickets";
 import { InstructorCalendar } from "@/components/instructor/InstructorCalendar";
@@ -284,6 +285,7 @@ export default function InstructorDashboard() {
       <Routes>
         <Route index element={<InstructorOverview />} />
         <Route path="groups" element={<InstructorGroups />} />
+        <Route path="group-details" element={<InstructorGroupDetails />} />
         <Route path="marks" element={<InstructorMarks />} />
         <Route path="tickets" element={<InstructorTickets />} />
       </Routes>
