@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { School, Users, Calendar, BarChart3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const groups = [
   {
@@ -26,6 +27,8 @@ const groups = [
 ];
 
 export default function InstructorGroups() {
+  const navigate = useNavigate();
+  
   return (
     <DashboardLayout role="instructor">
       <div className="space-y-6">
@@ -57,7 +60,7 @@ export default function InstructorGroups() {
                 </div>
                 <Button 
                   className="bg-primary text-primary-foreground"
-                  onClick={() => window.location.href = '/instructor/group-details'}
+                  onClick={() => navigate('/instructor/group-details')}
                 >
                   View Details
                 </Button>
