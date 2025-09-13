@@ -4,6 +4,7 @@ import InstructorGroups from "./instructor/InstructorGroups";
 import InstructorGroupDetails from "./instructor/InstructorGroupDetails";
 import InstructorMarks from "./instructor/InstructorMarks";
 import InstructorTickets from "./instructor/InstructorTickets";
+import InstructorSessions from "./instructor/InstructorSessions";
 import { InstructorCalendar } from "@/components/instructor/InstructorCalendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -282,13 +283,14 @@ function InstructorOverview() {
 export default function InstructorDashboard() {
   return (
     <DashboardLayout role="instructor">
-      <Routes>
-        <Route index element={<InstructorOverview />} />
-        <Route path="groups" element={<InstructorGroups />} />
-        <Route path="group-details" element={<InstructorGroupDetails />} />
-        <Route path="marks" element={<InstructorMarks />} />
-        <Route path="tickets" element={<InstructorTickets />} />
-      </Routes>
+        <Routes>
+          <Route index element={<InstructorOverview />} />
+          <Route path="groups" element={<InstructorGroups />} />
+          <Route path="group-details" element={<InstructorGroupDetails />} />
+          <Route path="sessions" element={<InstructorSessions />} />
+          <Route path="marks" element={<InstructorMarks />} />
+          <Route path="tickets" element={<InstructorTickets />} />
+        </Routes>
     </DashboardLayout>
   );
 }
