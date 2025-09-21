@@ -35,7 +35,9 @@ import {
   Calendar,
   UserCheck,
   LayoutDashboard,
-  BarChart3
+  BarChart3,
+  Building2,
+  DollarSign
 } from "lucide-react";
 
 interface AppSidebarProps {
@@ -85,6 +87,12 @@ export function AppSidebar({ role }: AppSidebarProps) {
     { title: "Announcements", url: "/student/announcements", icon: MessageSquare },
   ];
 
+  const hrMenuItems = [
+    { title: t('nav.dashboard'), url: "/hr", icon: LayoutDashboard },
+    { title: "Excuse Management", url: "/hr/excuses", icon: FileText },
+    { title: "Salary Management", url: "/hr/salary", icon: DollarSign },
+  ];
+
   const commonItems = [
     { title: t('nav.settings'), url: "/settings", icon: Settings },
     { title: t('nav.help'), url: "/help", icon: HelpCircle },
@@ -100,6 +108,8 @@ export function AppSidebar({ role }: AppSidebarProps) {
         return mentorMenuItems;
       case 'student':
         return studentMenuItems;
+      case 'hr':
+        return hrMenuItems;
       default:
         return [];
     }
