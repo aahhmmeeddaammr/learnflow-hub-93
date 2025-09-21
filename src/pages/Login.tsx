@@ -41,6 +41,8 @@ export default function Login() {
           navigate('/instructor');
         } else if (email.includes('mentor')) {
           navigate('/mentor');
+        } else if (email.includes('hr')) {
+          navigate('/hr');
         } else {
           navigate('/student');
         }
@@ -192,6 +194,7 @@ export default function Login() {
                   <p>Admin: admin@route.com / password</p>
                   <p>Instructor: instructor@route.com / password</p>
                   <p>Mentor: mentor@route.com / password</p>
+                  <p>HR: hr@route.com / password</p>
                   <p>Student: student@route.com / password</p>
                 </div>
               </div>

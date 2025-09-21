@@ -62,6 +62,15 @@ const defaultUsers: User[] = [
     department: 'Computer Science',
     joinDate: '2024-03-01',
     isActive: true
+  },
+  {
+    id: '5',
+    email: 'hr@route.com',
+    name: 'HR Manager',
+    role: 'hr',
+    department: 'Human Resources',
+    joinDate: '2024-01-10',
+    isActive: true
   }
 ];
 

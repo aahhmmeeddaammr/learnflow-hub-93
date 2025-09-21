@@ -5,13 +5,16 @@ import './i18n'
 import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext'
 import { ExcuseProvider } from './contexts/ExcuseContext'
+import { HRProvider } from './contexts/HRContext'
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <ExcuseProvider>
-        <App />
-      </ExcuseProvider>
+      <HRProvider>
+        <ExcuseProvider>
+          <App />
+        </ExcuseProvider>
+      </HRProvider>
     </AuthProvider>
   </StrictMode>,
 )

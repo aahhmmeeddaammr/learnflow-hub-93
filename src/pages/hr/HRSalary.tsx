@@ -9,222 +9,200 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   Plus, 
+  DollarSign, 
+  Users,
   Download,
-  Edit,
-  DollarSign,
   Clock,
-  Calculator,
   TrendingUp,
-  Users
+  Edit,
+  Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Employee {
-  id: string;
-  name: string;
-  employeeId: string;
-  role: 'instructor' | 'mentor';
-  hourlyRate: number;
-  hoursWorked: number;
-  totalSalary: number;
-  department: string;
-  status: 'active' | 'inactive';
-}
+import { useHR } from "@/contexts/HRContext";
+import * as XLSX from 'xlsx';
 
 export default function HRSalary() {
   const { toast } = useToast();
-  const [selectedMonth, setSelectedMonth] = useState("2024-03");
-  const [selectedRole, setSelectedRole] = useState<string>("all");
+  const { 
+    employees, 
+    addEmployee, 
+    updateEmployee, 
+    deleteEmployee, 
+    calculateSalary, 
+    getTotalHours,
+    workLogs,
+    addWorkLog 
+  } = useHR();
+  
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  
-  // Mock data
-  const [employees, setEmployees] = useState<Employee[]>([
-    {
-      id: "1",
-      name: "John Smith",
-      employeeId: "EMP001",
-      role: "instructor",
-      hourlyRate: 25,
-      hoursWorked: 160,
-      totalSalary: 4000,
-      department: "Computer Science",
-      status: "active"
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      employeeId: "EMP002",
-      role: "mentor",
-      hourlyRate: 20,
-      hoursWorked: 120,
-      totalSalary: 2400,
-      department: "Data Science",
-      status: "active"
-    },
-    {
-      id: "3",
-      name: "Mike Wilson",
-      employeeId: "EMP003",
-      role: "instructor",
-      hourlyRate: 30,
-      hoursWorked: 140,
-      totalSalary: 4200,
-      department: "Web Development",
-      status: "active"
-    },
-    {
-      id: "4",
-      name: "Emily Davis",
-      employeeId: "EMP004",
-      role: "mentor",
-      hourlyRate: 22,
-      hoursWorked: 100,
-      totalSalary: 2200,
-      department: "UI/UX Design",
-      status: "active"
-    },
-    {
-      id: "5",
-      name: "David Brown",
-      employeeId: "EMP005",
-      role: "instructor",
-      hourlyRate: 28,
-      hoursWorked: 180,
-      totalSalary: 5040,
-      department: "Mobile Development",
-      status: "active"
-    }
-  ]);
+  const [isWorkLogDialogOpen, setIsWorkLogDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
   const [newEmployee, setNewEmployee] = useState({
     name: "",
+    email: "",
+    role: "instructor" as "instructor" | "mentor",
+    department: "",
+    hourlyRate: 0
+  });
+
+  const [editingEmployee, setEditingEmployee] = useState({
+    name: "",
+    email: "",
+    role: "instructor" as "instructor" | "mentor",
+    department: "",
+    hourlyRate: 0
+  });
+
+  const [newWorkLog, setNewWorkLog] = useState({
     employeeId: "",
-    role: "",
-    hourlyRate: "",
-    hoursWorked: "",
-    department: ""
+    date: "",
+    hoursWorked: 0,
+    description: "",
+    sessionType: ""
   });
 
-  const filteredEmployees = employees.filter(employee => {
-    const roleMatch = selectedRole === "all" || employee.role === selectedRole;
-    return roleMatch && employee.status === "active";
-  });
-
-  const totalStats = {
-    totalEmployees: filteredEmployees.length,
-    totalHours: filteredEmployees.reduce((sum, emp) => sum + emp.hoursWorked, 0),
-    totalSalary: filteredEmployees.reduce((sum, emp) => sum + emp.totalSalary, 0),
-    avgHourlyRate: filteredEmployees.length > 0 
-      ? filteredEmployees.reduce((sum, emp) => sum + emp.hourlyRate, 0) / filteredEmployees.length 
-      : 0
-  };
+  const activeEmployees = employees.filter(emp => emp.isActive).length;
+  const totalSalaryBudget = employees.reduce((sum, emp) => sum + calculateSalary(emp.id), 0);
+  const averageHourlyRate = employees.length > 0 ? employees.reduce((sum, emp) => sum + emp.hourlyRate, 0) / employees.length : 0;
+  const totalHours = employees.reduce((sum, emp) => sum + getTotalHours(emp.id), 0);
 
   const handleAddEmployee = () => {
-    const hoursWorked = parseFloat(newEmployee.hoursWorked);
-    const hourlyRate = parseFloat(newEmployee.hourlyRate);
-    
-    const employee: Employee = {
-      id: (employees.length + 1).toString(),
+    addEmployee({
       name: newEmployee.name,
-      employeeId: newEmployee.employeeId,
+      email: newEmployee.email,
       role: newEmployee.role as any,
-      hourlyRate: hourlyRate,
-      hoursWorked: hoursWorked,
-      totalSalary: hoursWorked * hourlyRate,
       department: newEmployee.department,
-      status: "active"
-    };
+      hourlyRate: newEmployee.hourlyRate,
+      totalHours: 0,
+      joinDate: new Date().toISOString().split('T')[0],
+      isActive: true
+    });
 
-    setEmployees([...employees, employee]);
     setNewEmployee({
       name: "",
-      employeeId: "",
-      role: "",
-      hourlyRate: "",
-      hoursWorked: "",
-      department: ""
+      email: "",
+      role: "instructor",
+      department: "",
+      hourlyRate: 0
     });
     setIsAddDialogOpen(false);
     
     toast({
       title: "Employee Added",
-      description: "Employee salary information has been added successfully.",
+      description: "New employee has been added successfully.",
     });
   };
 
   const handleEditEmployee = () => {
-    if (!editingEmployee) return;
+    if (!selectedEmployee) return;
 
-    const updatedEmployees = employees.map(emp => 
-      emp.id === editingEmployee.id 
-        ? {
-            ...editingEmployee,
-            totalSalary: editingEmployee.hoursWorked * editingEmployee.hourlyRate
-          }
-        : emp
-    );
+    updateEmployee(selectedEmployee.id, {
+      name: editingEmployee.name,
+      email: editingEmployee.email,
+      role: editingEmployee.role as any,
+      department: editingEmployee.department,
+      hourlyRate: editingEmployee.hourlyRate
+    });
 
-    setEmployees(updatedEmployees);
-    setEditingEmployee(null);
     setIsEditDialogOpen(false);
+    setSelectedEmployee(null);
     
     toast({
       title: "Employee Updated",
-      description: "Employee salary information has been updated successfully.",
+      description: "Employee information has been updated successfully.",
     });
+  };
+
+  const handleDeleteEmployee = (employeeId: string) => {
+    deleteEmployee(employeeId);
+    
+    toast({
+      title: "Employee Deleted",
+      description: "Employee has been removed from the system.",
+    });
+  };
+
+  const handleAddWorkLog = () => {
+    addWorkLog({
+      employeeId: newWorkLog.employeeId,
+      date: newWorkLog.date,
+      hoursWorked: newWorkLog.hoursWorked,
+      description: newWorkLog.description,
+      sessionType: newWorkLog.sessionType
+    });
+
+    setNewWorkLog({
+      employeeId: "",
+      date: "",
+      hoursWorked: 0,
+      description: "",
+      sessionType: ""
+    });
+    setIsWorkLogDialogOpen(false);
+    
+    toast({
+      title: "Work Log Added",
+      description: "Work hours have been logged successfully.",
+    });
+  };
+
+  const openEditDialog = (employee: any) => {
+    setSelectedEmployee(employee);
+    setEditingEmployee({
+      name: employee.name,
+      email: employee.email,
+      role: employee.role,
+      department: employee.department,
+      hourlyRate: employee.hourlyRate
+    });
+    setIsEditDialogOpen(true);
   };
 
   const exportToExcel = () => {
-    const headers = [
-      'Employee Name', 
-      'Employee ID', 
-      'Role', 
-      'Department', 
-      'Hourly Rate ($)', 
-      'Hours Worked', 
-      'Total Salary ($)'
-    ];
-    
-    const csvData = filteredEmployees.map(emp => [
-      emp.name,
-      emp.employeeId,
-      emp.role,
-      emp.department,
-      emp.hourlyRate.toString(),
-      emp.hoursWorked.toString(),
-      emp.totalSalary.toString()
-    ]);
+    const data = employees.map(employee => ({
+      'Employee Name': employee.name,
+      'Email': employee.email,
+      'Role': employee.role,
+      'Department': employee.department,
+      'Total Worked Hours': getTotalHours(employee.id),
+      'Hourly Rate': `$${employee.hourlyRate}`,
+      'Total Calculated Salary': `$${calculateSalary(employee.id).toFixed(2)}`
+    }));
 
     // Add summary row
-    csvData.push([]);
-    csvData.push(['SUMMARY', '', '', '', '', '', '']);
-    csvData.push(['Total Employees:', totalStats.totalEmployees.toString(), '', '', '', '', '']);
-    csvData.push(['Total Hours:', totalStats.totalHours.toString(), '', '', '', '', '']);
-    csvData.push(['Total Salary:', `$${totalStats.totalSalary.toFixed(2)}`, '', '', '', '', '']);
-    csvData.push(['Average Hourly Rate:', `$${totalStats.avgHourlyRate.toFixed(2)}`, '', '', '', '', '']);
+    data.push({
+      'Employee Name': '',
+      'Email': '',
+      'Role': '',
+      'Department': '',
+      'Total Worked Hours': '',
+      'Hourly Rate': '',
+      'Total Calculated Salary': ''
+    });
 
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
+    data.push({
+      'Employee Name': 'SUMMARY',
+      'Email': '',
+      'Role': '',
+      'Department': '',
+      'Total Worked Hours': totalHours,
+      'Hourly Rate': `$${averageHourlyRate.toFixed(2)} (avg)`,
+      'Total Calculated Salary': `$${totalSalaryBudget.toFixed(2)}`
+    });
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `salary-report-${selectedMonth}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Salary Report');
+    
+    // Generate Excel file and download
+    XLSX.writeFile(workbook, 'salary-report.xlsx');
 
     toast({
       title: "Export Complete",
-      description: "Salary report has been downloaded.",
+      description: "Salary report has been downloaded as Excel file.",
     });
-  };
-
-  const getRoleColor = (role: string) => {
-    return role === 'instructor' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800';
   };
 
   return (
@@ -238,44 +216,142 @@ export default function HRSalary() {
           </p>
         </div>
         
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Employee
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Employee</DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+        <div className="flex gap-2">
+          <Dialog open={isWorkLogDialogOpen} onOpenChange={setIsWorkLogDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Clock className="w-4 h-4 mr-2" />
+                Log Hours
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Log Work Hours</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Employee Name</Label>
-                  <Input
-                    id="name"
-                    value={newEmployee.name}
-                    onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
-                    placeholder="Enter name"
-                  />
+                  <Label htmlFor="employee">Select Employee</Label>
+                  <Select 
+                    value={newWorkLog.employeeId} 
+                    onValueChange={(value) => setNewWorkLog({...newWorkLog, employeeId: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select employee" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map(employee => (
+                        <SelectItem key={employee.id} value={employee.id}>
+                          {employee.name} - {employee.role}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="date">Date</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={newWorkLog.date}
+                      onChange={(e) => setNewWorkLog({...newWorkLog, date: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="hours">Hours Worked</Label>
+                    <Input
+                      id="hours"
+                      type="number"
+                      step="0.5"
+                      value={newWorkLog.hoursWorked}
+                      onChange={(e) => setNewWorkLog({...newWorkLog, hoursWorked: parseFloat(e.target.value)})}
+                      placeholder="8"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="employeeId">Employee ID</Label>
+                  <Label htmlFor="sessionType">Session Type</Label>
+                  <Select 
+                    value={newWorkLog.sessionType} 
+                    onValueChange={(value) => setNewWorkLog({...newWorkLog, sessionType: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select session type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lecture">Lecture</SelectItem>
+                      <SelectItem value="workshop">Workshop</SelectItem>
+                      <SelectItem value="mentoring">Mentoring</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="preparation">Preparation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description</Label>
                   <Input
-                    id="employeeId"
-                    value={newEmployee.employeeId}
-                    onChange={(e) => setNewEmployee({...newEmployee, employeeId: e.target.value})}
-                    placeholder="EMP001"
+                    id="description"
+                    value={newWorkLog.description}
+                    onChange={(e) => setNewWorkLog({...newWorkLog, description: e.target.value})}
+                    placeholder="Brief description of work done"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <Select value={newEmployee.role} onValueChange={(value) => setNewEmployee({...newEmployee, role: value})}>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsWorkLogDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddWorkLog}>
+                  Log Hours
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Employee
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Employee</DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Employee Name</Label>
+                    <Input
+                      id="name"
+                      value={newEmployee.name}
+                      onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                      placeholder="Enter name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={newEmployee.email}
+                      onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                      placeholder="employee@route.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="role">Role</Label>
+                  <Select value={newEmployee.role} onValueChange={(value: "instructor" | "mentor") => setNewEmployee({...newEmployee, role: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
                     </SelectTrigger>
@@ -284,52 +360,42 @@ export default function HRSalary() {
                       <SelectItem value="mentor">Mentor</SelectItem>
                     </SelectContent>
                   </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="department">Department</Label>
+                    <Input
+                      id="department"
+                      value={newEmployee.department}
+                      onChange={(e) => setNewEmployee({...newEmployee, department: e.target.value})}
+                      placeholder="Department"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="department">Department</Label>
-                  <Input
-                    id="department"
-                    value={newEmployee.department}
-                    onChange={(e) => setNewEmployee({...newEmployee, department: e.target.value})}
-                    placeholder="Department"
-                  />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="hourlyRate">Hourly Rate ($)</Label>
                   <Input
                     id="hourlyRate"
                     type="number"
+                    step="0.01"
                     value={newEmployee.hourlyRate}
-                    onChange={(e) => setNewEmployee({...newEmployee, hourlyRate: e.target.value})}
+                    onChange={(e) => setNewEmployee({...newEmployee, hourlyRate: parseFloat(e.target.value) || 0})}
                     placeholder="25.00"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="hoursWorked">Hours Worked</Label>
-                  <Input
-                    id="hoursWorked"
-                    type="number"
-                    value={newEmployee.hoursWorked}
-                    onChange={(e) => setNewEmployee({...newEmployee, hoursWorked: e.target.value})}
-                    placeholder="160"
-                  />
-                </div>
               </div>
-            </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddEmployee}>
-                Add Employee
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddEmployee}>
+                  Add Employee
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Summary Stats */}
@@ -342,36 +408,36 @@ export default function HRSalary() {
             <Users className="w-5 h-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{totalStats.totalEmployees}</div>
-            <p className="text-xs text-muted-foreground">Active staff</p>
+            <div className="text-2xl font-bold text-foreground">{employees.length}</div>
+            <p className="text-xs text-muted-foreground">All employees</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Hours
+              Active Employees
             </CardTitle>
-            <Clock className="w-5 h-5 text-success" />
+            <Users className="w-5 h-5 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">{totalStats.totalHours}</div>
-            <p className="text-xs text-muted-foreground">This month</p>
+            <div className="text-2xl font-bold text-foreground">{activeEmployees}</div>
+            <p className="text-xs text-muted-foreground">Currently working</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Salary
+              Total Salary Budget
             </CardTitle>
             <DollarSign className="w-5 h-5 text-warning" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">${totalStats.totalSalary.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-foreground">${totalSalaryBudget.toFixed(2)}</div>
             <div className="flex items-center gap-1 text-sm">
               <TrendingUp className="w-3 h-3 text-success" />
-              <span className="text-success">+8%</span>
+              <span className="text-success">+5%</span>
               <span className="text-muted-foreground">vs last month</span>
             </div>
           </CardContent>
@@ -382,10 +448,10 @@ export default function HRSalary() {
             <CardTitle className="text-sm font-medium text-muted-foreground">
               Avg Hourly Rate
             </CardTitle>
-            <Calculator className="w-5 h-5 text-primary" />
+            <Clock className="w-5 h-5 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">${totalStats.avgHourlyRate.toFixed(2)}</div>
+            <div className="text-2xl font-bold text-foreground">${averageHourlyRate.toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Per hour</p>
           </CardContent>
         </Card>
@@ -396,36 +462,11 @@ export default function HRSalary() {
         <CardContent className="pt-6">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Period:</span>
-              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2024-01">January 2024</SelectItem>
-                  <SelectItem value="2024-02">February 2024</SelectItem>
-                  <SelectItem value="2024-03">March 2024</SelectItem>
-                  <SelectItem value="2024-04">April 2024</SelectItem>
-                </SelectContent>
-              </Select>
+              <span className="text-sm font-medium">Export Salary Report:</span>
             </div>
             
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Role:</span>
-              <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  <SelectItem value="instructor">Instructors</SelectItem>
-                  <SelectItem value="mentor">Mentors</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="ml-auto">
-              <Button onClick={exportToExcel}>
+              <Button variant="outline" onClick={exportToExcel}>
                 <Download className="w-4 h-4 mr-2" />
                 Export Excel
               </Button>
@@ -437,7 +478,7 @@ export default function HRSalary() {
       {/* Salary Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Employee Salary Details ({filteredEmployees.length})</CardTitle>
+          <CardTitle>Employee Salary Details ({employees.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
@@ -446,49 +487,63 @@ export default function HRSalary() {
                 <TableHead>Employee</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Department</TableHead>
-                <TableHead>Hourly Rate</TableHead>
                 <TableHead>Hours Worked</TableHead>
+                <TableHead>Hourly Rate</TableHead>
                 <TableHead>Total Salary</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredEmployees.map((employee) => (
+              {employees.map((employee) => (
                 <TableRow key={employee.id}>
                   <TableCell>
                     <div>
                       <div className="font-medium text-foreground">{employee.name}</div>
-                      <div className="text-sm text-muted-foreground">{employee.employeeId}</div>
+                      <div className="text-sm text-muted-foreground">{employee.email}</div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getRoleColor(employee.role)}>
+                    <Badge variant={employee.role === 'instructor' ? 'default' : 'secondary'}>
                       {employee.role}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-foreground">{employee.department}</div>
+                    <div className="text-sm text-muted-foreground">{employee.department}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-foreground">${employee.hourlyRate.toFixed(2)}</div>
+                    <div className="text-sm">{getTotalHours(employee.id)}h</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-foreground">{employee.hoursWorked} hrs</div>
+                    <div className="font-medium">${employee.hourlyRate}/hr</div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-foreground">${employee.totalSalary.toFixed(2)}</div>
+                    <div className="font-bold text-success">
+                      ${calculateSalary(employee.id).toFixed(2)}
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => {
-                        setEditingEmployee(employee);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                    <Badge variant={employee.isActive ? 'default' : 'secondary'}>
+                      {employee.isActive ? 'active' : 'inactive'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => openEditDialog(employee)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDeleteEmployee(employee.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -501,85 +556,68 @@ export default function HRSalary() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Employee Salary</DialogTitle>
+            <DialogTitle>Edit Employee</DialogTitle>
           </DialogHeader>
           
-          {editingEmployee && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editName">Employee Name</Label>
-                  <Input
-                    id="editName"
-                    value={editingEmployee.name}
-                    onChange={(e) => setEditingEmployee({...editingEmployee, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="editEmployeeId">Employee ID</Label>
-                  <Input
-                    id="editEmployeeId"
-                    value={editingEmployee.employeeId}
-                    onChange={(e) => setEditingEmployee({...editingEmployee, employeeId: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editRole">Role</Label>
-                  <Select 
-                    value={editingEmployee.role} 
-                    onValueChange={(value) => setEditingEmployee({...editingEmployee, role: value as any})}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="instructor">Instructor</SelectItem>
-                      <SelectItem value="mentor">Mentor</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="editDepartment">Department</Label>
-                  <Input
-                    id="editDepartment"
-                    value={editingEmployee.department}
-                    onChange={(e) => setEditingEmployee({...editingEmployee, department: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="editHourlyRate">Hourly Rate ($)</Label>
-                  <Input
-                    id="editHourlyRate"
-                    type="number"
-                    value={editingEmployee.hourlyRate}
-                    onChange={(e) => setEditingEmployee({...editingEmployee, hourlyRate: parseFloat(e.target.value)})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="editHoursWorked">Hours Worked</Label>
-                  <Input
-                    id="editHoursWorked"
-                    type="number"
-                    value={editingEmployee.hoursWorked}
-                    onChange={(e) => setEditingEmployee({...editingEmployee, hoursWorked: parseFloat(e.target.value)})}
-                  />
-                </div>
-              </div>
-
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Calculated Total Salary</Label>
-                <div className="text-2xl font-bold text-primary">
-                  ${(editingEmployee.hoursWorked * editingEmployee.hourlyRate).toFixed(2)}
-                </div>
+                <Label htmlFor="editName">Employee Name</Label>
+                <Input
+                  id="editName"
+                  value={editingEmployee.name}
+                  onChange={(e) => setEditingEmployee({...editingEmployee, name: e.target.value})}
+                  placeholder="Enter name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editEmail">Email</Label>
+                <Input
+                  id="editEmail"
+                  type="email"
+                  value={editingEmployee.email}
+                  onChange={(e) => setEditingEmployee({...editingEmployee, email: e.target.value})}
+                  placeholder="employee@route.com"
+                />
               </div>
             </div>
-          )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="editRole">Role</Label>
+                <Select value={editingEmployee.role} onValueChange={(value: "instructor" | "mentor") => setEditingEmployee({...editingEmployee, role: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="instructor">Instructor</SelectItem>
+                    <SelectItem value="mentor">Mentor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="editDepartment">Department</Label>
+                <Input
+                  id="editDepartment"
+                  value={editingEmployee.department}
+                  onChange={(e) => setEditingEmployee({...editingEmployee, department: e.target.value})}
+                  placeholder="Department"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="editHourlyRate">Hourly Rate ($)</Label>
+              <Input
+                id="editHourlyRate"
+                type="number"
+                step="0.01"
+                value={editingEmployee.hourlyRate}
+                onChange={(e) => setEditingEmployee({...editingEmployee, hourlyRate: parseFloat(e.target.value) || 0})}
+                placeholder="25.00"
+              />
+            </div>
+          </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>

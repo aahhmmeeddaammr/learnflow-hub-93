@@ -22,85 +22,19 @@ import {
   X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Excuse {
-  id: string;
-  employeeName: string;
-  employeeId: string;
-  type: 'sick' | 'personal' | 'emergency' | 'vacation';
-  reason: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'approved' | 'rejected';
-  submittedAt: string;
-  reviewedBy?: string;
-  reviewedAt?: string;
-  notes?: string;
-  attachments?: string[];
-}
+import { useHR } from "@/contexts/HRContext";
+import * as XLSX from 'xlsx';
 
 export default function HRExcuses() {
   const { toast } = useToast();
+  const { excuses, employees, addExcuse, updateExcuseStatus } = useHR();
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
-  
-  // Mock data
-  const [excuses, setExcuses] = useState<Excuse[]>([
-    {
-      id: "1",
-      employeeName: "John Smith",
-      employeeId: "EMP001",
-      type: "sick",
-      reason: "Flu symptoms",
-      startDate: "2024-03-15",
-      endDate: "2024-03-17",
-      status: "pending",
-      submittedAt: "2024-03-14T09:00:00Z",
-      notes: "Doctor's note attached"
-    },
-    {
-      id: "2",
-      employeeName: "Sarah Johnson",
-      employeeId: "EMP002",
-      type: "personal",
-      reason: "Family emergency",
-      startDate: "2024-03-20",
-      endDate: "2024-03-20",
-      status: "approved",
-      submittedAt: "2024-03-19T14:30:00Z",
-      reviewedBy: "HR Manager",
-      reviewedAt: "2024-03-19T16:00:00Z"
-    },
-    {
-      id: "3",
-      employeeName: "Mike Wilson",
-      employeeId: "EMP003",
-      type: "vacation",
-      reason: "Annual leave",
-      startDate: "2024-03-25",
-      endDate: "2024-03-29",
-      status: "pending",
-      submittedAt: "2024-03-10T11:15:00Z"
-    },
-    {
-      id: "4",
-      employeeName: "Emily Davis",
-      employeeId: "EMP004",
-      type: "emergency",
-      reason: "Car accident",
-      startDate: "2024-03-12",
-      endDate: "2024-03-12",
-      status: "approved",
-      submittedAt: "2024-03-12T08:00:00Z",
-      reviewedBy: "HR Manager",
-      reviewedAt: "2024-03-12T09:00:00Z"
-    }
-  ]);
 
   const [newExcuse, setNewExcuse] = useState({
-    employeeName: "",
     employeeId: "",
+    employeeName: "",
     type: "",
     reason: "",
     startDate: "",
@@ -134,23 +68,22 @@ export default function HRExcuses() {
   };
 
   const handleSubmitExcuse = () => {
-    const excuse: Excuse = {
-      id: (excuses.length + 1).toString(),
-      employeeName: newExcuse.employeeName,
+    const selectedEmployee = employees.find(emp => emp.id === newExcuse.employeeId);
+    
+    addExcuse({
       employeeId: newExcuse.employeeId,
+      employeeName: selectedEmployee?.name || "",
       type: newExcuse.type as any,
       reason: newExcuse.reason,
       startDate: newExcuse.startDate,
       endDate: newExcuse.endDate,
       status: 'pending',
-      submittedAt: new Date().toISOString(),
       notes: newExcuse.notes
-    };
+    });
 
-    setExcuses([excuse, ...excuses]);
     setNewExcuse({
-      employeeName: "",
       employeeId: "",
+      employeeName: "",
       type: "",
       reason: "",
       startDate: "",
@@ -166,16 +99,7 @@ export default function HRExcuses() {
   };
 
   const handleStatusUpdate = (excuseId: string, newStatus: 'approved' | 'rejected') => {
-    setExcuses(excuses.map(excuse => 
-      excuse.id === excuseId 
-        ? {
-            ...excuse,
-            status: newStatus,
-            reviewedBy: "HR Manager",
-            reviewedAt: new Date().toISOString()
-          }
-        : excuse
-    ));
+    updateExcuseStatus(excuseId, newStatus, "HR Manager");
 
     toast({
       title: `Excuse ${newStatus}`,
@@ -183,34 +107,27 @@ export default function HRExcuses() {
     });
   };
 
-  const exportToCSV = () => {
-    const headers = ['Employee Name', 'Employee ID', 'Type', 'Reason', 'Start Date', 'End Date', 'Status', 'Submitted At'];
-    const csvData = filteredExcuses.map(excuse => [
-      excuse.employeeName,
-      excuse.employeeId,
-      excuse.type,
-      excuse.reason,
-      excuse.startDate,
-      excuse.endDate,
-      excuse.status,
-      new Date(excuse.submittedAt).toLocaleDateString()
-    ]);
+  const exportToExcel = () => {
+    const data = filteredExcuses.map(excuse => ({
+      'Employee Name': excuse.employeeName,
+      'Employee ID': excuse.employeeId,
+      'Type': excuse.type,
+      'Reason': excuse.reason,
+      'Start Date': excuse.startDate,
+      'End Date': excuse.endDate,
+      'Status': excuse.status,
+      'Submitted At': new Date(excuse.submittedAt).toLocaleDateString()
+    }));
 
-    const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
-      .join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'excuses-report.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Excuses Report');
+    
+    XLSX.writeFile(workbook, 'excuses-report.xlsx');
 
     toast({
       title: "Export Complete",
-      description: "Excuses report has been downloaded.",
+      description: "Excuses report has been downloaded as Excel file.",
     });
   };
 
@@ -238,25 +155,30 @@ export default function HRExcuses() {
             </DialogHeader>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="employeeName">Employee Name</Label>
-                  <Input
-                    id="employeeName"
-                    value={newExcuse.employeeName}
-                    onChange={(e) => setNewExcuse({...newExcuse, employeeName: e.target.value})}
-                    placeholder="Enter name"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="employeeId">Employee ID</Label>
-                  <Input
-                    id="employeeId"
-                    value={newExcuse.employeeId}
-                    onChange={(e) => setNewExcuse({...newExcuse, employeeId: e.target.value})}
-                    placeholder="EMP001"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="employee">Select Employee</Label>
+                <Select 
+                  value={newExcuse.employeeId} 
+                  onValueChange={(value) => {
+                    const employee = employees.find(emp => emp.id === value);
+                    setNewExcuse({
+                      ...newExcuse, 
+                      employeeId: value,
+                      employeeName: employee?.name || ""
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employees.map(employee => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        {employee.name} - {employee.role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -364,9 +286,9 @@ export default function HRExcuses() {
             </Select>
 
             <div className="ml-auto">
-              <Button variant="outline" onClick={exportToCSV}>
+              <Button variant="outline" onClick={exportToExcel}>
                 <Download className="w-4 h-4 mr-2" />
-                Export CSV
+                Export Excel
               </Button>
             </div>
           </div>
@@ -397,7 +319,7 @@ export default function HRExcuses() {
                   <TableCell>
                     <div>
                       <div className="font-medium text-foreground">{excuse.employeeName}</div>
-                      <div className="text-sm text-muted-foreground">{excuse.employeeId}</div>
+                      <div className="text-sm text-muted-foreground">ID: {excuse.employeeId}</div>
                     </div>
                   </TableCell>
                   <TableCell>
