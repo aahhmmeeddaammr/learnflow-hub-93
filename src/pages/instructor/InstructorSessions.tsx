@@ -2,197 +2,208 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Clock, Users, TrendingUp, Copy, FileDown, Eye, Video, BarChart3 } from 'lucide-react';
-import { format, isWithinInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachWeekOfInterval, parseISO } from 'date-fns';
+import { Calendar, Clock, Users, TrendingUp, Copy, Play, Square, Video, MapPin, Globe, CheckCircle2, XCircle, Plus } from 'lucide-react';
+import { format, parseISO, differenceInHours, differenceInMinutes, isToday, isFuture, isPast } from 'date-fns';
 
-// Mock data for sessions
-const mockSessions = [
+interface Session {
+  id: string;
+  title: string;
+  status: 'Ended' | 'Scheduled' | 'Ongoing';
+  variant: 'Instructor' | 'Mentor';
+  type: 'Online' | 'offline' | 'online';
+  branch: string;
+  date: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  from?: string;
+  to?: string;
+  link?: string;
+  linkId?: number;
+}
+
+// Mock data based on your JSON structure
+const mockSessions: Session[] = [
   {
-    id: '1',
-    title: 'Advanced React Concepts',
-    date: '2024-01-15',
-    startTime: '09:00',
-    endTime: '11:00',
-    status: 'Ended' as const,
-    zoomLink: 'https://zoom.us/j/123456789',
-    groupName: 'Group A',
-    students: [
-      { id: '1', name: 'Ahmed Hassan', joinTime: '09:02', leaveTime: '11:00', status: 'Present' as const },
-      { id: '2', name: 'Sara Ahmed', joinTime: '09:05', leaveTime: '10:45', status: 'Present' as const },
-      { id: '3', name: 'Mohamed Ali', joinTime: null, leaveTime: null, status: 'Absent' as const },
-      { id: '4', name: 'Fatima Nour', joinTime: '09:15', leaveTime: '11:00', status: 'Present' as const },
-    ]
+    id: "68d484bb089b6064c2d7484e",
+    title: "Session with Instructor Ali Osama",
+    status: "Ended",
+    variant: "Instructor",
+    type: "Online",
+    branch: "online",
+    date: "2025-09-24T23:54:35.741Z",
+    startTime: "2025-09-24T23:59:20.111Z",
+    endTime: "2025-09-25T03:13:18Z",
+    link: "https://us06web.zoom.us/s/83754431817?zak=eyJ0eXAiOiJKV1QiLCJzdiI6IjAwMDAwMiIsInptX3NrbSI6InptX28ybSIsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJ3ZWIiLCJjbHQiOjAsIm1udW0iOiI4Mzc1NDQzMTgxNyIsImF1ZCI6ImNsaWVudHNtIiwidWlkIjoiMG80YWJoNUpUU3E0SUx1c19ranNIQSIsInppZCI6IjdmM2NmMWI2NGJlNjRlMTQ5NTgyMzhlMTUxZTcyYmNiIiwic2siOiIwIiwic3R5IjoxMDAsIndjZCI6InVzMDYiLCJleHAiOjE3NTg3NjUyNzQsImlhdCI6MTc1ODc1ODA3NCwiYWlkIjoicEdEY0xXUVNUVmFwX0N5dndpbzB3USIsImNpZCI6IiJ9.Wxy8zPBpb4h8DtXlRhO_VUu9EAbtSVBOjMD3mzZ5nmM",
+    linkId: 83754431817
   },
   {
-    id: '2',
-    title: 'JavaScript Fundamentals',
-    date: '2024-01-16',
-    startTime: '14:00',
-    endTime: '16:00',
-    status: 'Ended' as const,
-    zoomLink: 'https://zoom.us/j/987654321',
-    groupName: 'Group B',
-    students: [
-      { id: '5', name: 'Omar Khaled', joinTime: '14:00', leaveTime: '16:00', status: 'Present' as const },
-      { id: '6', name: 'Layla Mohamed', joinTime: '14:10', leaveTime: '15:30', status: 'Present' as const },
-      { id: '7', name: 'Youssef Ibrahim', joinTime: '14:05', leaveTime: '16:00', status: 'Present' as const },
-    ]
+    id: "68d4839bc6f0a92d4551fa3c",
+    title: "Session with Instructor Ali Osama",
+    status: "Scheduled",
+    variant: "Instructor",
+    type: "offline",
+    branch: "Dokki",
+    date: "2025-09-25T00:00:00.000Z"
   },
   {
-    id: '3',
-    title: 'Database Design Workshop',
-    date: '2024-01-18',
-    startTime: '10:00',
-    endTime: '12:30',
-    status: 'Scheduled' as const,
-    zoomLink: 'https://zoom.us/j/456789123',
-    groupName: 'Group A',
-    students: [
-      { id: '1', name: 'Ahmed Hassan', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-      { id: '2', name: 'Sara Ahmed', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-      { id: '3', name: 'Mohamed Ali', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-      { id: '4', name: 'Fatima Nour', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-    ]
+    id: "68d48523089b6064c2d7486c",
+    title: "Postponed Session with Mentor Youssef",
+    status: "Scheduled",
+    variant: "Mentor",
+    type: "online",
+    branch: "Online",
+    date: "2025-09-25T00:00:00.000Z",
+    from: "19:00",
+    to: "22:00",
+    startTime: null,
+    endTime: null
   },
   {
-    id: '4',
-    title: 'Frontend Development Best Practices',
-    date: '2024-01-20',
-    startTime: '13:00',
-    endTime: '15:00',
-    status: 'Scheduled' as const,
-    zoomLink: 'https://zoom.us/j/789123456',
-    groupName: 'Group B',
-    students: [
-      { id: '5', name: 'Omar Khaled', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-      { id: '6', name: 'Layla Mohamed', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-      { id: '7', name: 'Youssef Ibrahim', joinTime: null, leaveTime: null, status: 'Scheduled' as const },
-    ]
+    id: "session-4",
+    title: "Advanced JavaScript Workshop",
+    status: "Ongoing",
+    variant: "Instructor",
+    type: "offline",
+    branch: "Maadi",
+    date: "2025-09-25T00:00:00.000Z",
+    startTime: "2025-09-25T10:00:00.000Z",
+    endTime: null
   },
   {
-    id: '5',
-    title: 'API Integration Workshop',
-    date: '2024-01-22',
-    startTime: '09:30',
-    endTime: '11:30',
-    status: 'Ongoing' as const,
-    zoomLink: 'https://zoom.us/j/321654987',
-    groupName: 'Group A',
-    students: [
-      { id: '1', name: 'Ahmed Hassan', joinTime: '09:32', leaveTime: null, status: 'Present' as const },
-      { id: '2', name: 'Sara Ahmed', joinTime: '09:35', leaveTime: null, status: 'Present' as const },
-      { id: '3', name: 'Mohamed Ali', joinTime: null, leaveTime: null, status: 'Absent' as const },
-      { id: '4', name: 'Fatima Nour', joinTime: '09:40', leaveTime: null, status: 'Present' as const },
-    ]
+    id: "session-5",
+    title: "React Fundamentals",
+    status: "Scheduled",
+    variant: "Instructor",
+    type: "online",
+    branch: "Online",
+    date: "2025-09-26T00:00:00.000Z",
+    from: "14:00",
+    to: "16:00"
   },
+  {
+    id: "session-6",
+    title: "Database Design Session",
+    status: "Ended",
+    variant: "Mentor",
+    type: "offline",
+    branch: "Nasr City",
+    date: "2025-09-23T00:00:00.000Z",
+    startTime: "2025-09-23T09:00:00.000Z",
+    endTime: "2025-09-23T11:30:00.000Z"
+  }
 ];
 
-const months = [
-  { value: '1', label: 'January' },
-  { value: '2', label: 'February' },
-  { value: '3', label: 'March' },
-  { value: '4', label: 'April' },
-  { value: '5', label: 'May' },
-  { value: '6', label: 'June' },
-  { value: '7', label: 'July' },
-  { value: '8', label: 'August' },
-  { value: '9', label: 'September' },
-  { value: '10', label: 'October' },
-  { value: '11', label: 'November' },
-  { value: '12', label: 'December' },
+const filterOptions = [
+  { value: 'all', label: 'All Sessions' },
+  { value: 'today', label: 'Today' },
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'ongoing', label: 'Ongoing' }
 ];
-
-const years = ['2024', '2023', '2022'];
 
 export default function InstructorSessions() {
-  const [selectedMonth, setSelectedMonth] = useState('1');
-  const [selectedYear, setSelectedYear] = useState('2024');
-  const [selectedSession, setSelectedSession] = useState<typeof mockSessions[0] | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [sessions, setSessions] = useState<Session[]>(mockSessions);
   const { toast } = useToast();
 
-  // Filter sessions based on selected month and year
+  // Filter sessions based on selected filter
   const filteredSessions = useMemo(() => {
-    return mockSessions.filter(session => {
+    return sessions.filter(session => {
       const sessionDate = parseISO(session.date);
-      const selectedDate = new Date(parseInt(selectedYear), parseInt(selectedMonth) - 1);
-      return isWithinInterval(sessionDate, {
-        start: startOfMonth(selectedDate),
-        end: endOfMonth(selectedDate)
-      });
+      
+      switch (selectedFilter) {
+        case 'today':
+          return isToday(sessionDate);
+        case 'upcoming':
+          return session.status === 'Scheduled' || (session.status === 'Ongoing' && isFuture(sessionDate));
+        case 'completed':
+          return session.status === 'Ended';
+        case 'ongoing':
+          return session.status === 'Ongoing';
+        default:
+          return true;
+      }
     });
-  }, [selectedMonth, selectedYear]);
+  }, [sessions, selectedFilter]);
 
   // Calculate analytics
   const analytics = useMemo(() => {
-    const totalSessions = filteredSessions.length;
-    const totalHours = filteredSessions.reduce((acc, session) => {
-      const start = new Date(`2024-01-01 ${session.startTime}`);
-      const end = new Date(`2024-01-01 ${session.endTime}`);
-      return acc + (end.getTime() - start.getTime()) / (1000 * 60 * 60);
-    }, 0);
-
-    const completedSessions = filteredSessions.filter(s => s.status === 'Ended');
-    const totalStudents = completedSessions.reduce((acc, session) => acc + session.students.length, 0);
-    const presentStudents = completedSessions.reduce((acc, session) => 
-      acc + session.students.filter(s => s.status === 'Present').length, 0);
+    const totalSessions = sessions.length;
+    const completedSessions = sessions.filter(s => s.status === 'Ended').length;
+    const nonCompletedSessions = sessions.filter(s => s.status !== 'Ended').length;
     
-    const averageAttendance = totalStudents > 0 ? (presentStudents / totalStudents) * 100 : 0;
+    // Calculate total hours from completed sessions
+    const totalHours = sessions.reduce((acc, session) => {
+      if (session.startTime && session.endTime) {
+        const start = parseISO(session.startTime);
+        const end = parseISO(session.endTime);
+        const hours = differenceInHours(end, start);
+        const minutes = differenceInMinutes(end, start) % 60;
+        return acc + hours + (minutes / 60);
+      } else if (session.from && session.to) {
+        const [fromHour, fromMin] = session.from.split(':').map(Number);
+        const [toHour, toMin] = session.to.split(':').map(Number);
+        const fromMinutes = fromHour * 60 + fromMin;
+        const toMinutes = toHour * 60 + toMin;
+        return acc + (toMinutes - fromMinutes) / 60;
+      }
+      return acc;
+    }, 0);
 
     return {
       totalSessions,
       totalHours: Math.round(totalHours * 100) / 100,
-      averageAttendance: Math.round(averageAttendance * 100) / 100,
-      completedSessions: completedSessions.length
+      completedSessions,
+      nonCompletedSessions
     };
-  }, [filteredSessions]);
+  }, [sessions]);
 
-  // Calculate duration for a session
-  const calculateDuration = (startTime: string, endTime: string) => {
-    const start = new Date(`2024-01-01 ${startTime}`);
-    const end = new Date(`2024-01-01 ${endTime}`);
-    const diffMs = end.getTime() - start.getTime();
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
-  };
-
-  // Copy zoom link to clipboard
-  const copyZoomLink = (link: string) => {
-    navigator.clipboard.writeText(link);
+  // Handle session actions
+  const handleStartSession = (sessionId: string) => {
+    setSessions(prev => prev.map(session => 
+      session.id === sessionId 
+        ? { ...session, status: 'Ongoing' as const, startTime: new Date().toISOString() }
+        : session
+    ));
     toast({
-      title: 'Success',
-      description: 'Zoom link copied to clipboard',
+      title: 'Session Started',
+      description: 'The session has been started successfully.',
     });
   };
 
-  // Export attendance to CSV
-  const exportAttendance = (session: typeof mockSessions[0]) => {
-    const csvContent = [
-      ['Student Name', 'Join Time', 'Leave Time', 'Status'],
-      ...session.students.map(student => [
-        student.name,
-        student.joinTime || 'N/A',
-        student.leaveTime || 'N/A',
-        student.status
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `attendance-${session.title}-${session.date}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-
+  const handleEndSession = (sessionId: string) => {
+    setSessions(prev => prev.map(session => 
+      session.id === sessionId 
+        ? { ...session, status: 'Ended' as const, endTime: new Date().toISOString() }
+        : session
+    ));
     toast({
-      title: 'Success',
-      description: 'Attendance report exported successfully',
+      title: 'Session Ended',
+      description: 'The session has been ended successfully.',
+    });
+  };
+
+  const handleCreateSession = (sessionId: string) => {
+    // Mock creating a session link
+    const mockLink = `https://zoom.us/j/${Math.floor(Math.random() * 1000000000)}`;
+    setSessions(prev => prev.map(session => 
+      session.id === sessionId 
+        ? { ...session, link: mockLink, linkId: Math.floor(Math.random() * 1000000000) }
+        : session
+    ));
+    toast({
+      title: 'Session Created',
+      description: 'Online session link has been created successfully.',
+    });
+  };
+
+  const copyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    toast({
+      title: 'Link Copied',
+      description: 'Session link has been copied to clipboard.',
     });
   };
 
@@ -209,17 +220,113 @@ export default function InstructorSessions() {
     }
   };
 
-  const getAttendanceStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Present':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Present</Badge>;
-      case 'Absent':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Absent</Badge>;
-      case 'Scheduled':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Scheduled</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+  const getVariantBadge = (variant: string, type: string) => {
+    const isOnline = type.toLowerCase().includes('online');
+    if (variant === 'Instructor') {
+      return (
+        <Badge variant="outline" className={`${isOnline ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+          {isOnline ? <Globe className="w-3 h-3 mr-1" /> : <MapPin className="w-3 h-3 mr-1" />}
+          {variant} - {isOnline ? 'Online' : 'Offline'}
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge variant="outline" className={`${isOnline ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}`}>
+          {isOnline ? <Globe className="w-3 h-3 mr-1" /> : <MapPin className="w-3 h-3 mr-1" />}
+          {variant} - {isOnline ? 'Online' : 'Offline'}
+        </Badge>
+      );
     }
+  };
+
+  const formatDuration = (session: Session) => {
+    if (session.startTime && session.endTime) {
+      const start = parseISO(session.startTime);
+      const end = parseISO(session.endTime);
+      const hours = differenceInHours(end, start);
+      const minutes = differenceInMinutes(end, start) % 60;
+      return `${hours}h ${minutes}m`;
+    } else if (session.from && session.to) {
+      const [fromHour, fromMin] = session.from.split(':').map(Number);
+      const [toHour, toMin] = session.to.split(':').map(Number);
+      const fromMinutes = fromHour * 60 + fromMin;
+      const toMinutes = toHour * 60 + toMin;
+      const totalMinutes = toMinutes - fromMinutes;
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${hours}h ${minutes}m`;
+    }
+    return 'N/A';
+  };
+
+  const renderSessionActions = (session: Session) => {
+    const isOffline = session.type === 'offline';
+    const isOnline = session.type.toLowerCase().includes('online');
+
+    if (isOffline) {
+      // Offline session logic
+      if (!session.startTime) {
+        return (
+          <Button 
+            onClick={() => handleStartSession(session.id)}
+            size="sm"
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <Play className="w-3 h-3 mr-1" />
+            Start
+          </Button>
+        );
+      } else if (session.startTime && !session.endTime) {
+        return (
+          <Button 
+            onClick={() => handleEndSession(session.id)}
+            size="sm"
+            variant="destructive"
+          >
+            <Square className="w-3 h-3 mr-1" />
+            End
+          </Button>
+        );
+      } else {
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <CheckCircle2 className="w-3 h-3 mr-1" />
+            Completed
+          </Badge>
+        );
+      }
+    } else if (isOnline) {
+      // Online session logic
+      if (!session.link) {
+        return (
+          <Button 
+            onClick={() => handleCreateSession(session.id)}
+            size="sm"
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            Create Session
+          </Button>
+        );
+      } else {
+        return (
+          <div className="flex items-center space-x-2">
+            <Video className="h-4 w-4 text-blue-600" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => copyLink(session.link!)}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              <Copy className="h-3 w-3 mr-1" />
+              Copy Link
+            </Button>
+          </div>
+        );
+      }
+    }
+
+    return null;
   };
 
   return (
@@ -227,35 +334,22 @@ export default function InstructorSessions() {
       {/* Header */}
       <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Sessions</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Sessions Management</h1>
           <p className="text-muted-foreground">
-            Manage and track your teaching sessions and attendance
+            Manage your teaching sessions and track progress
           </p>
         </div>
         
-        {/* Filters */}
-        <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-4">
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Select month" />
+        {/* Filter */}
+        <div className="flex items-center space-x-4">
+          <Select value={selectedFilter} onValueChange={setSelectedFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter sessions" />
             </SelectTrigger>
             <SelectContent>
-              {months.map(month => (
-                <SelectItem key={month.value} value={month.value}>
-                  {month.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          
-          <Select value={selectedYear} onValueChange={setSelectedYear}>
-            <SelectTrigger className="w-full md:w-[120px]">
-              <SelectValue placeholder="Select year" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map(year => (
-                <SelectItem key={year} value={year}>
-                  {year}
+              {filterOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -273,7 +367,7 @@ export default function InstructorSessions() {
           <CardContent>
             <div className="text-2xl font-bold">{analytics.totalSessions}</div>
             <p className="text-xs text-muted-foreground">
-              {analytics.completedSessions} completed
+              All scheduled sessions
             </p>
           </CardContent>
         </Card>
@@ -286,209 +380,93 @@ export default function InstructorSessions() {
           <CardContent>
             <div className="text-2xl font-bold">{analytics.totalHours}h</div>
             <p className="text-xs text-muted-foreground">
-              Teaching time
+              Teaching time logged
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Attendance</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Completed Sessions</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.averageAttendance}%</div>
+            <div className="text-2xl font-bold text-green-600">{analytics.completedSessions}</div>
             <p className="text-xs text-muted-foreground">
-              Student participation
+              Successfully finished
             </p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Performance</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Non-Completed</CardTitle>
+            <XCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">Excellent</div>
+            <div className="text-2xl font-bold text-orange-600">{analytics.nonCompletedSessions}</div>
             <p className="text-xs text-muted-foreground">
-              Above average
+              Pending or in progress
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Sessions Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sessions Overview</CardTitle>
-          <CardDescription>
-            All your sessions for {months.find(m => m.value === selectedMonth)?.label} {selectedYear}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Session</TableHead>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Zoom Link</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredSessions.map((session) => (
-                  <TableRow key={session.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{session.title}</div>
-                        <div className="text-sm text-muted-foreground">{session.groupName}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{format(parseISO(session.date), 'MMM dd, yyyy')}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {session.startTime} - {session.endTime}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {calculateDuration(session.startTime, session.endTime)}
-                    </TableCell>
-                    <TableCell>
-                      {getStatusBadge(session.status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Video className="h-4 w-4 text-blue-600" />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyZoomLink(session.zoomLink)}
-                          className="text-blue-600 hover:text-blue-700"
-                        >
-                          <Copy className="h-3 w-3 mr-1" />
-                          Copy
-                        </Button>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Sheet>
-                        <SheetTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedSession(session)}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
-                            View Attendance
-                          </Button>
-                        </SheetTrigger>
-                        <SheetContent className="min-w-[600px] sm:max-w-[800px]">
-                          <SheetHeader>
-                            <SheetTitle>Attendance Report</SheetTitle>
-                            <SheetDescription>
-                              {selectedSession?.title} - {selectedSession && format(parseISO(selectedSession.date), 'MMM dd, yyyy')}
-                            </SheetDescription>
-                          </SheetHeader>
-                          
-                          {selectedSession && (
-                            <div className="mt-6 space-y-6">
-                              {/* Session Info */}
-                              <Card>
-                                <CardContent className="pt-6">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <p className="text-sm text-muted-foreground">Group</p>
-                                      <p className="font-medium">{selectedSession.groupName}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm text-muted-foreground">Duration</p>
-                                      <p className="font-medium">
-                                        {calculateDuration(selectedSession.startTime, selectedSession.endTime)}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm text-muted-foreground">Total Students</p>
-                                      <p className="font-medium">{selectedSession.students.length}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm text-muted-foreground">Present</p>
-                                      <p className="font-medium text-green-600">
-                                        {selectedSession.students.filter(s => s.status === 'Present').length}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                              
-                              <Separator />
-                              
-                              {/* Export Button */}
-                              <div className="flex justify-end">
-                                <Button
-                                  onClick={() => exportAttendance(selectedSession)}
-                                  className="mb-4"
-                                >
-                                  <FileDown className="h-4 w-4 mr-2" />
-                                  Export to CSV
-                                </Button>
-                              </div>
-                              
-                              {/* Attendance Table */}
-                              <div className="overflow-x-auto">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow>
-                                      <TableHead>Student Name</TableHead>
-                                      <TableHead>Join Time</TableHead>
-                                      <TableHead>Leave Time</TableHead>
-                                      <TableHead>Status</TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {selectedSession.students.map((student) => (
-                                      <TableRow key={student.id}>
-                                        <TableCell className="font-medium">
-                                          {student.name}
-                                        </TableCell>
-                                        <TableCell>
-                                          {student.joinTime || 'N/A'}
-                                        </TableCell>
-                                        <TableCell>
-                                          {student.leaveTime || 'N/A'}
-                                        </TableCell>
-                                        <TableCell>
-                                          {getAttendanceStatusBadge(student.status)}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
-                              </div>
-                            </div>
-                          )}
-                        </SheetContent>
-                      </Sheet>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          
-          {filteredSessions.length === 0 && (
-            <div className="text-center py-8">
-              <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No sessions found for the selected period.</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Sessions Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {filteredSessions.map((session) => (
+          <Card key={session.id} className="hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <CardTitle className="text-lg line-clamp-2">{session.title}</CardTitle>
+                  <CardDescription>{session.branch}</CardDescription>
+                </div>
+                {getStatusBadge(session.status)}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {getVariantBadge(session.variant, session.type)}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Date and Time */}
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>{format(parseISO(session.date), 'MMM dd, yyyy')}</span>
+              </div>
+              
+              {/* Duration */}
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                <span>
+                  {session.from && session.to ? `${session.from} - ${session.to}` : 'Duration: '}
+                  {formatDuration(session)}
+                </span>
+              </div>
+
+              {/* Session Actions */}
+              <div className="pt-2">
+                {renderSessionActions(session)}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {filteredSessions.length === 0 && (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold text-muted-foreground mb-2">No sessions found</h3>
+            <p className="text-sm text-muted-foreground text-center">
+              {selectedFilter === 'all' 
+                ? 'You don\'t have any sessions yet.' 
+                : `No sessions match the selected filter: ${filterOptions.find(f => f.value === selectedFilter)?.label}`
+              }
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
