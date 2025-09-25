@@ -175,9 +175,9 @@ export default function HRSalary() {
     data.push({
       'Employee Name': '',
       'Email': '',
-      'Role': '',
+      'Role': 'instructor' as const,
       'Department': '',
-      'Total Worked Hours': '',
+      'Total Worked Hours': 0,
       'Hourly Rate': '',
       'Total Calculated Salary': ''
     });
@@ -185,7 +185,7 @@ export default function HRSalary() {
     data.push({
       'Employee Name': 'SUMMARY',
       'Email': '',
-      'Role': '',
+      'Role': 'instructor' as const,
       'Department': '',
       'Total Worked Hours': totalHours,
       'Hourly Rate': `$${averageHourlyRate.toFixed(2)} (avg)`,
