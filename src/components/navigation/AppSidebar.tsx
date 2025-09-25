@@ -68,6 +68,7 @@ export function AppSidebar({ role }: AppSidebarProps) {
   const instructorMenuItems = [
     { title: t('nav.dashboard'), url: "/instructor", icon: LayoutDashboard },
     { title: t('nav.groups'), url: "/instructor/groups", icon: School },
+    { title: "Sessions", url: "/instructor/sessions", icon: Calendar },
     { title: "Marks & Attendance", url: "/instructor/marks", icon: ClipboardCheck },
     { title: "Tickets", url: "/instructor/tickets", icon: MessageSquare },
   ];
